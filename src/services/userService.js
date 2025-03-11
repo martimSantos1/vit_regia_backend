@@ -18,12 +18,56 @@ export default class UserService {
                 userName: userDTO.userName,
                 email: userDTO.email,
                 password: hashedPassword,
+                roleId: userDTO.roleId
             });
             console.log("User created:", user);
             const token = this.#generateToken(user);
             return { user: new UserDTO(user), token };
         } catch (error) {
             console.log("Error in SignUp:", error);
+            return null;
+        }
+    }
+
+    async findUserById(id) {
+        try {
+            const user = await User.findByPk(id);
+            return user;
+        } catch (error) {
+            console.log("Error in findUserById:", error);
+            return null;
+        }
+    }
+
+    async findUserByEmail(email) {
+        try{
+            const user = await User.findOne({
+                where: {
+                    email: email
+                }
+            });
+            return user;
+        } catch (error) {
+            console.log("Error in findUserByEmail:", error);
+            return null;
+        }
+    }
+
+    async authenticateUser(email, password) {
+        try {
+            const user = await this.findUserByEmail(email);
+            if (!user) {
+                return null;
+            }
+            const isSame = await bcrypt.compare(password, user.password);
+            if (isSame) {
+                const token = this.#generateToken(user);
+                return { user: new UserDTO(user), token };
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.log("Error in authenticateUser:", error);
             return null;
         }
     }
@@ -36,6 +80,7 @@ export default class UserService {
             id: user.id,
             userName: user.userName,
             email: user.email,
+            role: user.role,
             exp: parseInt(exp.getTime() / 1000),
         }, process.env.secretKey);
     }

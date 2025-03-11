@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import UserService from "../services/userService.js";
 import UserDTO from "../dto/userDTO.js";
@@ -7,12 +6,20 @@ const userService = new UserService();
 
 const signup = async (req, res) => {
   try {
-    console.log("Signup request body:", req.body);
-    let uDTO = new UserDTO({ 
+    let uDTO = new UserDTO({
       userName: req.body.userName,
       email: req.body.email,
-      password: req.body.password
+      password: req.body.password,
+      roleId: req.body.role,
     });
+    if (
+      uDTO.userName === "" ||
+      uDTO.email === "" ||
+      uDTO.password === "" ||
+      uDTO.role === ""
+    ) {
+      return res.status(403).send("Missing required fields");
+    }
     const result = await userService.SignUp(uDTO);
     if (!result) {
       return res.status(500).send("Error signing up");
@@ -23,12 +30,12 @@ const signup = async (req, res) => {
       res.cookie("jwt", token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
       console.log("user", JSON.stringify(user, null, 2));
       console.log(token);
-      return res.status(201).send(user);
+      return res.status(201).send({ user, token });
     } else {
       return res.status(409).send("Details are not correct");
     }
   } catch (error) {
-    console.log("Error in signup:", error);
+    console.error("Error in signup:", error);
     res.status(500).send("Internal Server Error");
   }
 };
@@ -36,20 +43,20 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await userService.findUserByEmail(email);
+    const result = await userService.authenticateUser(email, password);
+    if (!result) {
+      return res.status(401).send("Authentication failed");
+    }
+    const { user, token } = result;
 
     if (user) {
       const isSame = await bcrypt.compare(password, user.password);
 
       if (isSame) {
-        let token = jwt.sign({ id: user.id }, process.env.secretKey, {
-          expiresIn: 1 * 24 * 60 * 60 * 1000,
-        });
-
         res.cookie("jwt", token, { maxAge: 1 * 24 * 60 * 60, httpOnly: true });
         console.log("user", JSON.stringify(user, null, 2));
         console.log(token);
-        return res.status(201).send(new UserDTO(user));
+        return res.status(201).send({ user, token });
       } else {
         return res.status(401).send("Authentication failed");
       }

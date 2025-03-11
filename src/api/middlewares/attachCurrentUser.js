@@ -1,24 +1,19 @@
-import userService from "../../services/userService.js";
-import UserDTO from "../../dto/userDTO.js";
+import UserService from '../../services/userService.js';
+
+const userService = new UserService();
 
 const attachCurrentUser = async (req, res, next) => {
   try {
-    if (!req.token || req.token == undefined) {
-      return next(new Error("Token inexistente ou inválido"));
+    console.log('req.user:', req.user);
+    const user = await userService.findUserById(req.user.id);
+    if (!user) {
+      return res.status(401).end();
     }
-
-    const id = req.token.id;
-    const user = await userService.findUserById(id);
-
-    if (user) {
-      req.user = new UserDTO(user);
-      next();
-    } else {
-      return next(new Error("Token não corresponde a qualquer utilizador do sistema"));
-    }
-  } catch (error) {
-    console.error('Error attaching user to req:', error);
-    return next(error);
+    req.user = user;
+    return next();
+  } catch (e) {
+    console.error('Error attaching user to req:', e);
+    return res.status(500).end();
   }
 };
 

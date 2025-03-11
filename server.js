@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import db from './src/schemas/index.js';
 import userRoutes from './src/api/routes/userRoute.js';
+import rolesRoutes from './src/api/routes/roleRoute.js';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ db.sequelize.sync({ force: false }).then(() => {
 
 // Routes for the user API
 app.use('/api/users', userRoutes);
+app.use('/api/roles', rolesRoutes);
 
 // Listening to server connection
 app.listen(PORT, () => console.log(`Server is connected on ${PORT}`));
