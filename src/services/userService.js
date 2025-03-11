@@ -53,7 +53,7 @@ export default class UserService {
         }
     }
 
-    async authenticateUser(email, password) {
+    async login(email, password) {
         try {
             const user = await this.findUserByEmail(email);
             if (!user) {
@@ -68,6 +68,25 @@ export default class UserService {
             }
         } catch (error) {
             console.log("Error in authenticateUser:", error);
+            return null;
+        }
+    }
+
+    async checkId(userId, id) {
+        return userId === id;
+    }
+
+    async updateUserName(id, userName){
+        try {
+            const user = await User.findByPk(id);
+            if (!user) {
+                return null;
+            }
+            user.userName = userName;
+            await user.save();
+            return new UserDTO(user);
+        } catch (error) {
+            console.log("Error in updateUserInfo:", error);
             return null;
         }
     }

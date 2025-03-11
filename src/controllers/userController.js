@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import UserService from "../services/userService.js";
 import UserDTO from "../dto/userDTO.js";
+import { col } from "sequelize";
 
 const userService = new UserService();
 
@@ -43,7 +44,7 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const result = await userService.authenticateUser(email, password);
+    const result = await userService.login(email, password);
     if (!result) {
       return res.status(401).send("Authentication failed");
     }
@@ -69,7 +70,23 @@ const login = async (req, res) => {
   }
 };
 
+const updateUserName = async (req, res) => {
+  try {
+    console.log("req.user", req.user);
+    console.log("req.body", req.body);
+    const result = await userService.updateUserName(req.user.id, req.body.userName);
+    if (!result) {
+      return res.status(500).send("Error updating user info");
+    }
+    return res.status(200).send(result);
+  } catch (error) {
+    console.error("Error in updateUserInfo:", error);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
 export default {
   signup,
   login,
+  updateUserName,
 };
