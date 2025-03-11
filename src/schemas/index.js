@@ -19,8 +19,13 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-// Connecting to model
+// Connecting to models
 db.users = (await import('./userSchema.js')).default(sequelize, DataTypes);
+db.roles = (await import('./roleSchema.js')).default(sequelize, DataTypes);
+
+// Setting up associations
+db.users.belongsTo(db.roles, { foreignKey: 'roleId' });
+db.roles.hasMany(db.users, { foreignKey: 'roleId' });
 
 // Verifying model synchronization
 sequelize.sync().then(() => {
