@@ -10,9 +10,9 @@ const sequelize = new Sequelize(`postgres://postgres:Gecad25@localhost:5432/vito
 
 // Checking if connection is done
 sequelize.authenticate().then(() => {
-    console.log(`Database connected successfully`);
+    console.log(`✅ Database connected successfully`);
 }).catch((err) => {
-    console.log("Error connecting to the database:", err);
+    console.log("❌ Error connecting to the database:", err);
 });
 
 const db = {};
@@ -20,8 +20,8 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 // Connecting to models
-db.users = (await import('./userSchema.js')).default(sequelize, DataTypes);
-db.roles = (await import('./roleSchema.js')).default(sequelize, DataTypes);
+db.users = (await import('../schemas/userSchema.js')).default(sequelize, DataTypes);
+db.roles = (await import('../schemas/roleSchema.js')).default(sequelize, DataTypes);
 
 // Setting up associations
 db.users.belongsTo(db.roles, { foreignKey: 'roleId' });
@@ -29,9 +29,9 @@ db.roles.hasMany(db.users, { foreignKey: 'roleId' });
 
 // Verifying model synchronization
 sequelize.sync().then(() => {
-    console.log("Models synchronized successfully");
+    console.log("✅ Models synchronized successfully");
 }).catch((err) => {
-    console.log("Error synchronizing models:", err);
+    console.log("❌ Error synchronizing models:", err);
 });
 
 // Exporting the module

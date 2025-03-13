@@ -6,4 +6,3 @@ export default class UserDTO {
         this.roleId = user.roleId;
     }
 }
-console.log("UserDTO module loaded");

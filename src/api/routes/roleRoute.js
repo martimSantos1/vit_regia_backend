@@ -1,11 +1,9 @@
 import express from 'express';
-import roleController from '../../controllers/roleController.js';
-
-const { createRole } = roleController;
+import roleController from '../../application/controllers/roleController.js';
 
 const router = express.Router();
 
-// create endpoint
-router.post('/create', createRole);
+// Route para criar um papel
+router.post('/create', roleController.createRole);
 
 export default router;

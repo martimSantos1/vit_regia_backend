@@ -1,10 +1,9 @@
 // Importing modules
 import express from 'express';
-import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import db from './src/schemas/index.js';
+import db from './src/infrastructure/database/db.js';
 import userRoutes from './src/api/routes/userRoute.js';
 import rolesRoutes from './src/api/routes/roleRoute.js';
 
