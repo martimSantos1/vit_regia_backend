@@ -6,8 +6,8 @@ const userService = new UserService();
 const userController = {
     async register(req, res) {
         try {
-            const { userName, email, password, role } = req.body;
-            if (!userName || !email || !password || !role) {
+            const { userName, email, password, roleId } = req.body;
+            if (!userName || !email || !password || !roleId) {
                 throw new Error('Todos os campos são obrigatórios');
             }
             const userDTO = new UserDTO(req.body);
