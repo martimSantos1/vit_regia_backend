@@ -1,38 +1,48 @@
 import { Sequelize, DataTypes } from 'sequelize';
 
-// Database connection with dialect of postgres specifying the database we are using
-// port for my database is 5432
-// database name is vitoriaRegiaDB
-// username is postgres
-// password is Gecad25
-// host is localhost
-const sequelize = new Sequelize(`postgres://postgres:Gecad25@localhost:5432/vitoriaRegiaDB`, { dialect: "postgres" });
+const setupDatabase = async () => {
+    console.log('DB_USER (db.js):', process.env.DB_USER); // Verifique o valor da variável
 
-// Checking if connection is done
-sequelize.authenticate().then(() => {
-    console.log(`✅ Database connected successfully`);
-}).catch((err) => {
-    console.log("❌ Error connecting to the database:", err);
-});
+    const sequelize = new Sequelize(
+        process.env.DB_NAME,
+        process.env.DB_USER,
+        process.env.DB_PASS,
+        {
+            host: process.env.DB_HOST,
+            port: process.env.DB_PORT,
+            dialect: "postgres"
+        }
+    );
 
-const db = {};
-db.Sequelize = Sequelize;
-db.sequelize = sequelize;
+    // Checking if connection is done
+    try {
+        await sequelize.authenticate();
+        console.log(`✅ Database connected successfully`);
+    } catch (err) {
+        console.log("❌ Error connecting to the database:", err);
+    }
 
-// Connecting to models
-db.users = (await import('../schemas/userSchema.js')).default(sequelize, DataTypes);
-db.roles = (await import('../schemas/roleSchema.js')).default(sequelize, DataTypes);
+    const db = {};
+    db.Sequelize = Sequelize;
+    db.sequelize = sequelize;
 
-// Setting up associations
-db.users.belongsTo(db.roles, { foreignKey: 'roleId' });
-db.roles.hasMany(db.users, { foreignKey: 'roleId' });
+    // Connecting to models
+    db.users = (await import('../schemas/userSchema.js')).default(sequelize, DataTypes);
+    db.roles = (await import('../schemas/roleSchema.js')).default(sequelize, DataTypes);
 
-// Verifying model synchronization
-sequelize.sync().then(() => {
-    console.log("✅ Models synchronized successfully");
-}).catch((err) => {
-    console.log("❌ Error synchronizing models:", err);
-});
+    // Setting up associations
+    db.users.belongsTo(db.roles, { foreignKey: 'roleId' });
+    db.roles.hasMany(db.users, { foreignKey: 'roleId' });
 
-// Exporting the module
-export default db;
+    // Verifying model synchronization
+    try {
+        await sequelize.sync();
+        console.log("✅ Models synchronized successfully");
+    } catch (err) {
+        console.log("❌ Error synchronizing models:", err);
+    }
+
+    return db;
+};
+
+export default setupDatabase;
