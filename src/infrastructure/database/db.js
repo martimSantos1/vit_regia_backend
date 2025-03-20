@@ -1,8 +1,6 @@
 import { Sequelize, DataTypes } from 'sequelize';
 
 const setupDatabase = async () => {
-    console.log('DB_USER (db.js):', process.env.DB_USER); // Verifique o valor da variável
-
     const sequelize = new Sequelize(
         process.env.DB_NAME,
         process.env.DB_USER,
