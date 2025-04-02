@@ -10,15 +10,7 @@
       "esModuleInterop": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
-      "baseUrl": "./src",
-      "paths": {
-        "@api/*": ["./api/*"],
-        "@loaders/*": ["./loaders/*"],
-        "@services/*": ["./application/services/*"],
-        "@controllers/*": ["./application/controllers/*"],
-        "@repositories/*": ["./infrastructure/repositories/*"],
-        "@domain/*": ["./domain/*"]
-      }
+      "baseUrl": "./src"
     },
     "include": ["src"],
     "exclude": ["node_modules"]

@@ -7,6 +7,10 @@ import { Service } from 'typedi';
 
 @Service()
 export default class RoleRepo implements IRoleRepo {
+    constructor() {
+        console.log('RoleRepo instantiated');
+    }
+
     async findById(id: number): Promise<Role | null> {
         const database = await db();
         const roleData = await database.roles.findByPk(id);

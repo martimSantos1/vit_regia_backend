@@ -7,17 +7,10 @@ export default async ({ sequelizeConnection, controllers, repos, services }: {
     repos: { name: string; path: string }[];
     services: { name: string; path: string }[];
 }) => {
-    console.log(controllers);
-    console.log(repos);
-    console.log(services);
     try {
         Container.set('logger', LoggerInstance);
 
-        /**
-         * We are injecting the repositories into the DI container.
-         * This is controversial but it will provide a lot of flexibility 
-         * at the time of writing unit tests.
-         */
+        LoggerInstance.info('Injecting repositories into container');
         for (const m of repos) {
             console.log(`Loading module from: ${m.path}`);
             const repoModule = await import(m.path);
@@ -27,6 +20,7 @@ export default async ({ sequelizeConnection, controllers, repos, services }: {
             console.log(`Repository ${m.name} loaded`);
         }
 
+        LoggerInstance.info('\nInjecting services into container');
         for (const m of services) {
             console.log(`Loading module from: ${m.path}`);
             const serviceModule = await import(m.path);
@@ -36,6 +30,7 @@ export default async ({ sequelizeConnection, controllers, repos, services }: {
             console.log(`Service ${m.name} loaded`);
         }
 
+        LoggerInstance.info('\nInjecting controllers into container');
         for (const m of controllers) {
             console.log(`Loading module from: ${m.path}`);
             const controllerModule = await import(m.path);

@@ -12,9 +12,9 @@ interface Db {
 
 const setupDatabase = async (): Promise<Db> => {
     const sequelize = new Sequelize(
-        config.database.name, // Nome do banco
-        config.database.user, // Usuário
-        config.database.password, // Senha
+        config.database.name,
+        config.database.user,
+        config.database.password,
         {
             host: config.database.server.host,
             port: config.database.server.port,
@@ -23,7 +23,7 @@ const setupDatabase = async (): Promise<Db> => {
     );
     
 
-    // Checking if connection is done
+    // Verifica se a conexão com a base de dados foi bem-sucedida
     try {
         await sequelize.authenticate();
         console.log('✅ Database connected successfully');
@@ -38,11 +38,11 @@ const setupDatabase = async (): Promise<Db> => {
         roles: RoleModel(sequelize, DataTypes),
     };
 
-    // Setting up associations
+    // Defenição das associações entre os modelos
     db.users.belongsTo(db.roles, { foreignKey: 'roleId' });
     db.roles.hasMany(db.users, { foreignKey: 'roleId' });
 
-    // Verifying model synchronization
+    // Verifica se os modelos foram sincronizados com sucesso
     try {
         await sequelize.sync();
         console.log('✅ Models synchronized successfully');

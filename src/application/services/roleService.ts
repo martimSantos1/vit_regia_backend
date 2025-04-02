@@ -12,7 +12,9 @@ export default class RoleService implements IRoleService {
     // Injeta o RoleRepo
     constructor(
         @Inject(config.repos.role.name) private roleRepo: IRoleRepo
-    ) {}
+    ) {
+        console.log('RoleService instantiated\nRoleRepo injected:', this.roleRepo);
+    }
 
     async createRole(roleDTO: RoleDTO): Promise<Role> {
         const existingRole = await this.roleRepo.findByName(roleDTO.name);

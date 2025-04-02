@@ -46,7 +46,7 @@ export default async ({ expressApp }: { expressApp: Application }) => {
         services: [roleService, userService]
     });
 
-    Logger.info('✌️ Schemas, Controllers, Repositories, Services, etc. loaded');
+    Logger.info('\n✌️ Controllers, Repositories and Services loaded');
 
     await expressLoader({ app: expressApp });
     Logger.info('✌️ Express loaded');
