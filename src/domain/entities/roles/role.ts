@@ -14,5 +14,9 @@ class Role {
     getRoleName(): string {
         return this.name.getName();
     }
+
+    getId(): number | undefined {
+        return this.id;
+    }
 }
 export default Role;

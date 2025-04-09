@@ -16,6 +16,7 @@ export const RoleModel = (sequelize: Sequelize, DataTypes: typeof SequelizeDataT
             name: {
                 type: DataTypes.STRING,
                 allowNull: false,
+                unique: true,
             },
         },
         {

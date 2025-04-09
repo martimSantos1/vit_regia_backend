@@ -1,6 +1,6 @@
-import { Role } from "../entities/roles/role";
+import Role from "../entities/roles/role";
 
 export interface IRoleRepository{
-    create(data: Partial<Role>): Promise<Role>;
+    create(data: Role): Promise<Role>;
     findAll(): Promise<Role[]>;
 }
