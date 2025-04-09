@@ -1,116 +1,95 @@
+import { RoleController } from "./application/controllers/roleController";
+import { RoleService } from "./application/services/roleService";
+import { RoleRepository } from "./infrastruture/repos/roleRepo";
 import dotenv from 'dotenv';
-
-// Set the NODE_ENV to 'development' by default
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
 const envFound = dotenv.config();
 if (!envFound) {
-  // This error should crash the whole process
-  throw new Error("⚠️  Couldn't find .env file  ⚠️");
+    throw new Error("⚠️  Couldn't find .env file  ⚠️");
 }
 
-// Define types for the configuration
 interface DatabaseConfig {
-  name: string;
-  user: string;
-  password: string;
-  server:{
-    host: string;
-    port: number;
-    dialect: string;
-  }
-}
-
-interface LoggerConfig {
-  level: string;
+    name: string;
+    user: string;
+    password: string;
+    server: {
+        host: string;
+        port: number;
+        dialect: string;
+    }
 }
 
 interface ApiConfig {
-  prefix: string;
+    prefix: string;
 }
 
 interface ControllerConfig {
-  name: string;
-  path: string;
+    token: string;
+    useClass: new (...args: any[]) => any;
 }
 
 interface Config {
-  port: number;
-  database: DatabaseConfig;
-  jwtSecret: string;
-  logs: LoggerConfig;
-  api: ApiConfig;
-  controllers: {
-    role: ControllerConfig;
-    user: ControllerConfig;
-  };
-  services: {
-    role: ControllerConfig;
-    user: ControllerConfig;
-  };
-  repos: {
-    role: ControllerConfig;
-    user: ControllerConfig;
-  };
+    port: number;
+    database: DatabaseConfig;
+    jwtSecret: string;
+    api: ApiConfig;
+    controllers: {
+        role: ControllerConfig;
+    };
+    services: {
+        role: ControllerConfig;
+    };
+    repos: {
+        role: ControllerConfig;
+    };
 }
 
-// Export the configuration object with proper types
-const config: Config = {
-  port: parseInt(process.env.PORT || '5000', 10),
-
-  database: {
-    name: process.env.DB_NAME || 'gecad_vitoria_regia_db',
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASS || 'Gecad25',
-    server: {
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432', 10),
-      dialect: process.env.DB_DIALECT || 'postgres',
+function getEnvVariable(key: string): string {
+    const value = process.env[key];
+    if (!value) {
+        throw new Error(`Missing required environment variable: ${key}`);
     }
-  },
+    return value;
+}
 
-  jwtSecret: process.env.JWT_SECRET || 'my sakdfho2390asjod$%jl)!sdjas0i secret',
+const config: Config = {
+    port: parseInt(process.env.PORT || '5000', 10),
 
-  logs: {
-    level: process.env.LOG_LEVEL || 'info',
-  },
+    database: {
+        name: getEnvVariable('DB_NAME'),
+        user: getEnvVariable('DB_USER'),
+        password: getEnvVariable('DB_PASSWORD'),
+        server: {
+            host: getEnvVariable('DB_HOST'),
+            port: parseInt(process.env.DB_PORT || '5432', 10),
+            dialect: getEnvVariable('DB_DIALECT'),
+        }
+    },
 
-  api: {
-    prefix: '/api',
-  },
+    jwtSecret: process.env.JWT_SECRET || 'my sakdfho2390asjod$%jl)!sdjas0i secret',
 
-  controllers: {
-    role: {
-      name: "RoleController",
-      path: "../application/controllers/roleController.js",
+    api: {
+        prefix: '/api',
     },
-    user: {
-      name: "UserController",
-      path: "../application/controllers/userController.js",
-    },
-  },
 
-  services: {
-    role: {
-      name: "RoleService",
-      path: "../application/services/roleService.js",
+    repos: {
+        role: {
+            token: "RoleRepository",
+            useClass: RoleRepository,
+        },
     },
-    user: {
-      name: "UserService",
-      path: "../application/services/userService.js",
+    services: {
+        role: {
+            token: "RoleService",
+            useClass: RoleService,
+        },
     },
-  },
-
-  repos: {
-    role: {
-      name: "RoleRepo",
-      path: "../infrastructure/repositories/roleRepo.js",
+    controllers: {
+        role: {
+            token: "RoleController",
+            useClass: RoleController,
+        },
     },
-    user: {
-      name: "UserRepo",
-      path: "../infrastructure/repositories/userRepo.js",
-    },
-  },
 };
 
 export default config;

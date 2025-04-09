@@ -1,26 +1,27 @@
-import Role from "../../domain/roles/role.js";
-import IRoleService from "../services/IServices/IRoleService.js";
-import IRoleRepo from "../../infrastructure/repositories/IRepos/IRoleRepo.js";
-import RoleDTO from "../dto/roleDTO.js";
+import "reflect-metadata";
+import { injectable, inject } from "tsyringe";
+import { IRoleService } from "./IServices/IRoleService";
+import Role from "../../domain/entities/roles/role";
+import { IRoleRepository } from "../../domain/repositories/IRoleRepository";
 
-import { Service, Inject } from 'typedi';
-import config from "../../config.js";
+@injectable()
+export class RoleService implements IRoleService {
+    constructor(@inject("RoleRepository") private roleRepository: IRoleRepository) { }
 
-@Service()
-export default class RoleService implements IRoleService {
-
-    // Injeta o RoleRepo
-    constructor(
-        @Inject(config.repos.role.name) private roleRepo: IRoleRepo
-    ) {
-        console.log('RoleService instantiated\nRoleRepo injected:', this.roleRepo);
+    async createRole(data: string): Promise<Role> {
+        if (!data) {
+            throw new Error("Role name is required");
+        }
+        const existingRoles = await this.roleRepository.findAll();
+        const roleExists = existingRoles.some((role) => role.getRoleName().toLowerCase() === data.toLocaleLowerCase());
+        if (roleExists) {
+            throw new Error("Role already exists");
+        }
+        const role = new Role(data);
+        return this.roleRepository.create(role);
     }
 
-    async createRole(roleDTO: RoleDTO): Promise<Role> {
-        const existingRole = await this.roleRepo.findByName(roleDTO.name);
-        if (existingRole) throw new Error("⚠️ Já existe um cargo com este nome!");
-
-        const newRole = new Role(roleDTO.name);
-        return await this.roleRepo.create(newRole);
+    async getAllRoles(): Promise<Role[]> {
+        return this.roleRepository.findAll();
     }
 }

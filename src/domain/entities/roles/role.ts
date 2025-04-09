@@ -1,9 +1,8 @@
-// src/domain/Role.ts
-import RoleName from './roleName.js';
+import RoleName from './roleName';
 
 class Role {
-    id?: number;
-    name: RoleName;
+    private id?: number;
+    private name: RoleName;
 
     constructor(name: string, id?: number) {
         this.name = new RoleName(name);

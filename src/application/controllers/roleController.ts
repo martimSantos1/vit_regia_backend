@@ -1,37 +1,29 @@
-import IRoleController from './IControllers/IRoleController.js';
-import IRoleService from '../services/IServices/IRoleService.js';
-import RoleDTO from '../dto/roleDTO.js';
+import "reflect-metadata";
+import { Request, Response } from "express";
+import { inject, injectable } from "tsyringe";
+import { IRoleController } from "./IControllers/IRoleController";
+import { IRoleService } from "../services/IServices/IRoleService";
 
-import { Request, Response, NextFunction } from 'express';
-import { Service, Inject } from 'typedi';
-import { Container } from 'typedi';
-import config from '../../config.js';
+@injectable()
+export class RoleController implements IRoleController {
+    constructor(@inject("RoleService") private roleService: IRoleService) {}
 
-// Injeção de dependência
-@Service() // Regista o controlador como um serviço no TypeDI
-export default class RoleController implements IRoleController {
-
-    // Injeta o RoleService
-    constructor(
-        @Inject(config.services.role.name) private roleService: IRoleService
-    ) {
-        console.log('RoleController instantiated\nRoleService injected:', this.roleService);
-        const testService = Container.get(config.services.role.name);
-        console.log('Resolved RoleService:', testService);
-    }
-
-    async createRole(req: Request, res: Response, next: NextFunction): Promise<void> {
+    async create(req: Request, res: Response): Promise<Response> {
         try {
             const { name } = req.body;
-            if (!name) {
-                throw new Error('Todos os campos são obrigatórios');
-            }
-            const roleDTO = new RoleDTO(req.body);
-            const newRole = await this.roleService.createRole(roleDTO); // Usando a instância injetada
-            res.status(201).json(newRole);
-        } catch (e: any) {
-            console.log(e)
-            return next(e);
+            const role = await this.roleService.createRole(name);
+            return res.status(201).json(role);
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
+
+    async getAll(req: Request, res: Response): Promise<Response> {
+        try {
+            const roles = await this.roleService.getAllRoles();
+            return res.status(200).json(roles);
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message });
         }
     }
 }

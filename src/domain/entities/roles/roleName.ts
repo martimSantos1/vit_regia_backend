@@ -1,11 +1,8 @@
 class RoleName {
-    private name: string;
+    private name!: string;
 
     constructor(name: string) {
-        if (!name || name.length < 3) {
-            throw new Error('Nome da role deve ter pelo menos 3 caracteres');
-        }
-        this.name = name;
+        this.setName(name);
     }
 
     getName(): string {
@@ -16,7 +13,11 @@ class RoleName {
         if (!name || name.length < 3) {
             throw new Error('Nome da role deve ter pelo menos 3 caracteres');
         }
+        if (name.charAt(0) !== name.charAt(0).toUpperCase()) {
+            throw new Error('A primeira letra do nome da role deve ser maiúscula');
+        }
         this.name = name;
     }
 }
+
 export default RoleName;

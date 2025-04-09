@@ -2,8 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import methodOverride from 'method-override';
-import routes from '../api/index.js';
-import config from '../config.js';
+import routes from '../api/index';
 
 export default ({ app }: { app: express.Application }) => {
     /**
@@ -35,7 +34,7 @@ export default ({ app }: { app: express.Application }) => {
 
 
     // Load API routes
-    app.use(config.api.prefix, routes());
+    app.use('/api', routes());
 
 
 

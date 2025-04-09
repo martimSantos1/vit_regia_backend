@@ -1,24 +1,26 @@
-import { Router, Request, Response, NextFunction } from 'express';
-import { Container } from 'typedi';
-import { celebrate, Joi } from 'celebrate';
-import config from "../../config.js";
-import IRoleController from '../../application/controllers/IControllers/IRoleController.js';
+import { Router } from "express";
+import { container } from "../../loaders/dependencyInjector";
+import { RoleController } from "../../application/controllers/roleController";
 
 const router = Router();
 
 export default (app: Router) => {
-    app.use('/roles', router);
+	app.use("/roles", router);
 
-    const ctrl = Container.get(config.controllers.role.name) as IRoleController;
+	const roleController = container.resolve(RoleController);
 
-    router.post('/create',
-        celebrate({
-            body: Joi.object({
-                name: Joi.string().required()
-            }),
-        }),
-        (req, res, next) => {
-            ctrl.createRole(req, res, next);
-        });
+	router.post("/create", async (req, res, next) => {
+		try {
+			await roleController.create(req, res);
+		} catch (error) {
+			next(error);
+		}
+	});
+	router.get("/all", async (req, res, next) => {
+		try {
+			await roleController.getAll(req, res);
+		} catch (error) {
+			next(error);
+		}
+	});
 }
-

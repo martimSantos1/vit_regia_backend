@@ -1,16 +1,21 @@
 import { Sequelize, DataTypes, ModelStatic } from 'sequelize';
-import { UserModel } from '../infrastructure/models/userModel.js';
-import { RoleModel } from '../infrastructure/models/roleModel.js';
-import config from '../config.js';
+import { RoleModel } from '../infrastruture/models/roleModel';
+import config from '../config';
 
 interface Db {
     Sequelize: typeof Sequelize;
     sequelize: Sequelize;
-    users: ModelStatic<any>;
     roles: ModelStatic<any>;
 }
 
+let dbInstance: Db | null = null;
+
 const setupDatabase = async (): Promise<Db> => {
+    if (dbInstance) {
+        // Retorna a instância existente se já foi inicializada
+        return dbInstance;
+    }
+
     const sequelize = new Sequelize(
         config.database.name,
         config.database.user,
@@ -18,12 +23,10 @@ const setupDatabase = async (): Promise<Db> => {
         {
             host: config.database.server.host,
             port: config.database.server.port,
-            dialect: config.database.server.dialect as any // 👈 Sequelize espera um DialectType
+            dialect: config.database.server.dialect as any, // Sequelize espera um DialectType
         }
     );
-    
 
-    // Verifica se a conexão com a base de dados foi bem-sucedida
     try {
         await sequelize.authenticate();
         console.log('✅ Database connected successfully');
@@ -31,26 +34,21 @@ const setupDatabase = async (): Promise<Db> => {
         console.log('❌ Error connecting to the database:', err);
     }
 
-    const db: Db = {
+    dbInstance = {
         Sequelize,
         sequelize,
-        users: UserModel(sequelize, DataTypes),
         roles: RoleModel(sequelize, DataTypes),
     };
 
-    // Defenição das associações entre os modelos
-    db.users.belongsTo(db.roles, { foreignKey: 'roleId' });
-    db.roles.hasMany(db.users, { foreignKey: 'roleId' });
-
-    // Verifica se os modelos foram sincronizados com sucesso
     try {
-        await sequelize.sync();
+        // `alter: true` para ajustar as tabelas sem as apagar
+        await sequelize.sync({ alter: true });
         console.log('✅ Models synchronized successfully');
     } catch (err) {
         console.log('❌ Error synchronizing models:', err);
     }
 
-    return db;
+    return dbInstance;
 };
 
 export default setupDatabase;

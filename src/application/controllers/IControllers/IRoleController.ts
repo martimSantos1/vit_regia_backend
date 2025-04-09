@@ -1,5 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from "express";
 
-export default interface IRoleController {
-    createRole(req: Request, res: Response, next: NextFunction): Promise<void>;
+export interface IRoleController {
+    create(req: Request, res: Response): Promise<Response>;
+    getAll(req: Request, res: Response): Promise<Response>;
 }

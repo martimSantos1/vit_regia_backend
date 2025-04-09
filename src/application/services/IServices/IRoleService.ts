@@ -1,6 +1,6 @@
-import RoleDTO from "../../dto/roleDTO.js";
-import Role from "../../../domain/roles/role.js";
+import { Role } from "../../../domain/entities/roles/role";
 
-export default interface IRoleService {
-    createRole(roleDTO: RoleDTO): Promise<Role>;
+export interface IRoleService {
+    createRole(data: Partial<Role>): Promise<Role>;
+    getAllRoles(): Promise<Role[]>;
 }
