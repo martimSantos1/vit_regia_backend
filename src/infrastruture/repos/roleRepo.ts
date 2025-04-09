@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { IRoleRepository } from "../../domain/repositories/IRoleRepository";
 import { injectable } from "tsyringe";
 import db from "../../loaders/sequelize";
