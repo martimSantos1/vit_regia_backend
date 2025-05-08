@@ -1,63 +1,33 @@
-import Role from '../roles/role';
-import UserEmail from './userEmail';
-import UserName from './userName';
+import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement, Unique, AllowNull, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { Role } from '../roles/role';
 
-class User {
-    private id?: number;
-    private name: UserName;
-    private email: UserEmail;
-    private password: string;
-    private roleId: number;
+@Table({
+  tableName: 'users',
+  timestamps: true,
+})
+export class User extends Model<User> {
+  @PrimaryKey
+  @AutoIncrement
+  @Column(DataType.INTEGER)
+  id!: number;
 
-    constructor(fullName: string, userName: string, email: string, password: string, roleId: number, id?: number) {
-        this.name = new UserName(fullName, userName);
-        this.email = new UserEmail(email);
-        this.password = password;
-        this.roleId = roleId;
-        if (id) {
-            this.id = id;
-        }
-    }
+  @AllowNull(false)
+  @Column(DataType.STRING)
+  name!: string;
 
-    getFullName(): string {
-        return this.name.getFullName();
-    }
+  @Unique
+  @AllowNull(false)
+  @Column(DataType.STRING)
+  email!: string;
 
-    getUserName(): string {
-        return this.name.getUserName();
-    }
+  @AllowNull(false)
+  @Column(DataType.STRING)
+  password!: string;
 
-    getEmail(): string {
-        return this.email.getEmail();
-    }
+  @ForeignKey(() => Role)
+  @Column(DataType.INTEGER)
+  roleId!: number;
 
-    getPassword(): string {
-        return this.password;
-    }
-
-    getRole(): number {
-        return this.roleId;
-    }
-
-    setFullName(name: string): void {
-        this.name.setFullName(name);
-    }
-
-    setUserName(name: string): void {
-        this.name.setUserName(name);
-    }
-
-    setUserEmail(email: string): void {
-        this.email.setEmail(email);
-    }
-
-    setRole(role: number): void {
-        this.roleId = role;
-    }
-
-    setPassword(password: string): void {
-        this.password = password;
-    }
+  @BelongsTo(() => Role)
+  role!: Role;
 }
-
-export default User;

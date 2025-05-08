@@ -1,7 +1,11 @@
+import dotenv from 'dotenv';
 import { RoleController } from "./application/controllers/roleController";
 import { RoleService } from "./application/services/roleService";
 import { RoleRepository } from "./infrastruture/repos/roleRepo";
-import dotenv from 'dotenv';
+
+import { UserRepository } from "./infrastruture/repos/userRepo";
+import { UserService } from './application/services/userService';
+import { UserController } from './application/controllers/userController';
 
 const envFound = dotenv.config();
 if (!envFound) {
@@ -35,12 +39,15 @@ interface Config {
     api: ApiConfig;
     controllers: {
         role: ControllerConfig;
+        user: ControllerConfig;
     };
     services: {
         role: ControllerConfig;
+        user: ControllerConfig;
     };
     repos: {
         role: ControllerConfig;
+        user: ControllerConfig;
     };
 }
 
@@ -77,18 +84,30 @@ const config: Config = {
             token: "RoleRepository",
             useClass: RoleRepository,
         },
+        user: {
+            token: "UserRepository",
+            useClass: UserRepository,
+        }
     },
     services: {
         role: {
             token: "RoleService",
             useClass: RoleService,
         },
+        user: {
+            token: "UserService",
+            useClass: UserService,
+        }
     },
     controllers: {
         role: {
             token: "RoleController",
             useClass: RoleController,
         },
+        user: {
+            token: "UserController",
+            useClass: UserController,
+        }
     },
 };
 

@@ -1,22 +1,20 @@
-import RoleName from './roleName';
+import { Table, Column, Model, DataType, PrimaryKey, AutoIncrement, AllowNull, HasMany } from 'sequelize-typescript';
+import { User } from '../users/user';
 
-class Role {
-    private id?: number;
-    private name: RoleName;
+@Table({
+  tableName: 'roles',
+  timestamps: true,
+})
+export class Role extends Model<Role> {
+  @PrimaryKey
+  @AutoIncrement
+  @Column(DataType.INTEGER)
+  id!: number;
 
-    constructor(name: string, id?: number) {
-        this.name = new RoleName(name);
-        if (id) {
-            this.id = id;
-        }
-    }
+  @AllowNull(false)
+  @Column(DataType.STRING)
+  name!: string;
 
-    getRoleName(): string {
-        return this.name.getName();
-    }
-
-    getId(): number | undefined {
-        return this.id;
-    }
+  @HasMany(() => User)
+  users!: User[];
 }
-export default Role;

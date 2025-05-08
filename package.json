@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/martimSantos1/vit_regia_backend#readme",
   "dependencies": {
+    "@sequelize/core": "^7.0.0-alpha.46",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

@@ -1,4 +1,3 @@
-// src/loaders/dependencyInjector.ts
 import "reflect-metadata";
 import { container } from "tsyringe";
 import config from "../config";

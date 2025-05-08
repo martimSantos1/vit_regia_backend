@@ -1,88 +1,40 @@
 import "reflect-metadata";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
 import { injectable } from "tsyringe";
-import db from "../../loaders/sequelize";
-import User from "../../domain/entities/users/user";
+import database from "../../loaders/sequelize";
+import { User } from "../../domain/entities/users/user";
+import { CreationAttributes } from "sequelize";
 
 @injectable()
 export class UserRepository implements IUserRepository {
-    async create(user: User): Promise<User> {
-        const database = await db();
-        const userData = await database.users.create({
-            userName: user.getUserName(),
-            fullName: user.getFullName(),
-            email: user.getEmail(),
-            password: user.getPassword(),
-            roleId: user.getRole()
-        });
-        if (!userData) {
-            throw new Error("User creation failed");
-        }
-        return user;
+    async create(user: { name: string; email: string; password: string; roleId: number }): Promise<User> {
+        const db = await database();
+        const createdUser = await db.models.User.create(user as CreationAttributes<User>);
+        return createdUser;
     }
 
     async findAll(): Promise<User[]> {
-        const database = await db();
-        const usersData = await database.users.findAll();
-        return usersData.map((userData: any) =>
-            new User(
-                userData.userName,
-                userData.fullName,
-                userData.email,
-                userData.password,
-                userData.roleId,
-                userData.id)
-        );
+        const db = await database();
+        return db.models.User.findAll({ include: ['role'] });
     }
 
     async findById(id: number): Promise<User | null> {
-        const database = await db();
-        const userData = await database.users.findByPk(id);
-        if (!userData) {
-            return null;
-        }
-        return userData.map(new User(
-            userData.userName,
-            userData.fullName,
-            userData.email,
-            userData.password,
-            userData.roleId,
-            userData.id)
-        );
+        const db = await database();
+        return db.models.User.findByPk(id, { include: ['role'] });
     }
 
-    async delete(userName: string): Promise<void> {
-        const database = await db();
-        await database.users.destroy({ where: { userName } });
+    async delete(name: string): Promise<void> {
+        const db = await database();
+        await db.models.User.destroy({ where: { name } });
     }
 
     async findByEmail(email: string): Promise<User | null> {
-        const database = await db();
-        const userData = await database.users.findOne({ where: { email } });
-        if (!userData) {
-            return null;
-        }
-        return userData.map(new User(
-            userData.userName,
-            userData.fullName,
-            userData.email,
-            userData.password,
-            userData.roleId,
-            userData.id)
-        );    }
+        const db = await database();
+        return db.models.User.findOne({ where: { email }, include: ['role'] });
+    }
 
-    async findByUsername(username: string): Promise<User | null> {
-        const database = await db();
-        const userData = await database.users.findOne({ where: { username } });
-        if (!userData) {
-            return null;
-        }
-        return userData.map(new User(
-            userData.userName,
-            userData.fullName,
-            userData.email,
-            userData.password,
-            userData.roleId,
-            userData.id)
-        );    }
+    async findByUsername(name: string): Promise<User | null> {
+        const db = await database();
+        return db.models.User.findOne({ where: { name }, include: ['role'] });
+    }
 }

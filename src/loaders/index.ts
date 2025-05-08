@@ -1,4 +1,3 @@
-// src/loaders/index.ts
 import { Application } from "express";
 import expressLoader from "./express";
 import { loadDependencies } from "./dependencyInjector";

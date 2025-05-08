@@ -1,67 +1,55 @@
-import { Sequelize, DataTypes, ModelStatic } from 'sequelize';
-import { RoleModel } from '../infrastruture/models/roleModel';
+import { Sequelize } from 'sequelize-typescript';
 import config from '../config';
-import { UserModel } from '../infrastruture/models/userModel';
+import { Role } from '../domain/entities/roles/role';
+import { User } from '../domain/entities/users/user';
 
 interface Db {
-    Sequelize: typeof Sequelize;
-    sequelize: Sequelize;
-    roles: ModelStatic<any>;
-    users: ModelStatic<any>;
+  sequelize: Sequelize;
+  models: {
+    Role: typeof Role;
+    User: typeof User;
+  };
 }
 
 let dbInstance: Db | null = null;
 
 const setupDatabase = async (): Promise<Db> => {
-    if (dbInstance) {
-        // Retorna a instância existente se já foi inicializada
-        return dbInstance;
-    }
+  if (dbInstance) return dbInstance;
 
-    const sequelize = new Sequelize(
-        config.database.name,
-        config.database.user,
-        config.database.password,
-        {
-            host: config.database.server.host,
-            port: config.database.server.port,
-            dialect: config.database.server.dialect as any, // Sequelize espera um DialectType
-        }
-    );
+  const sequelize = new Sequelize({
+    dialect: config.database.server.dialect as any,
+    host: config.database.server.host,
+    port: config.database.server.port,
+    username: config.database.user,
+    password: config.database.password,
+    database: config.database.name,
+    models: [User, Role],
+    logging: false,
+  });
 
-    try {
-        await sequelize.authenticate();
-        console.log('✅ Database connected successfully');
-    } catch (err) {
-        console.log('❌ Error connecting to the database:', err);
-    }
+  try {
+    await sequelize.authenticate();
+    console.log('✅ Database connected successfully');
+  } catch (err) {
+    console.error('❌ Error connecting to the database:', err);
+  }
 
-    dbInstance = {
-        Sequelize,
-        sequelize,
-        roles: RoleModel(sequelize, DataTypes),
-        users: UserModel(sequelize, DataTypes),
-    };
+  try {
+    await sequelize.sync({ force: false });
+    console.log('✅ Models synchronized successfully');
+  } catch (err) {
+    console.error('❌ Error synchronizing models:', err);
+  }
 
-    // Definir a relação entre users e roles
-    dbInstance.roles.hasMany(dbInstance.users, {
-        foreignKey: 'roleId', // Nome da chave estrangeira na tabela users
-        as: 'users', // Alias para a relação
-    });
-    dbInstance.users.belongsTo(dbInstance.roles, {
-        foreignKey: 'roleId', // Nome da chave estrangeira na tabela users
-        as: 'role', // Alias para a relação
-    });
+  dbInstance = {
+    sequelize,
+    models: {
+      Role,
+      User,
+    },
+  };
 
-
-    try {
-        await sequelize.sync({ force: false });
-        console.log('✅ Models synchronized successfully');
-    } catch (err) {
-        console.log('❌ Error synchronizing models:', err);
-    }
-
-    return dbInstance;
+  return dbInstance;
 };
 
 export default setupDatabase;
