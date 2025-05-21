@@ -12,9 +12,11 @@ export class UserController implements IUserController {
         try {
             const { name, email, password, roleId } = req.body;
             const user = await this.userService.createUser({ name, email, password, roleId });
-            return res.status(201).json(user);
+            return res.status(201).json(
+                { message: "User created successfully", user }
+            );
         } catch (error: any) {
-            return res.status(500).json({ message: error.message });
+            return res.status(500).json({ error: error.message });
         }
     }
     async getAll(req: Request, res: Response): Promise<Response> {

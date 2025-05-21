@@ -4,6 +4,7 @@ import { injectable, inject } from 'tsyringe';
 import { User } from '../../domain/entities/users/user';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { IRoleRepository } from "../../domain/repositories/IRoleRepository";
+import HashingUtils from "../../utils/hashingUtils";
 
 @injectable()
 export class UserService implements IUserService {
@@ -16,11 +17,17 @@ export class UserService implements IUserService {
         if (!user.name || !user.email || !user.password) {
             throw new Error('All fields are required');
         }
+
         const existingUsers = await this.userRepository.findAll();
-        const userExists = existingUsers.some((existingUser) => existingUser.email.toLowerCase() === user.email.toLowerCase());
+        const userExists = existingUsers.some((existingUser) =>
+            existingUser.email.toLowerCase() === user.email.toLowerCase() ||
+            existingUser.name.toLowerCase() === user.name.toLowerCase()
+        );
+
         if (userExists) {
             throw new Error('User already exists');
         }
+
         if (!user.roleId) {
             const roles = await this.roleRepository.findAll();
             if (roles.length > 0) {
@@ -29,6 +36,9 @@ export class UserService implements IUserService {
                 throw new Error('No roles available');
             }
         }
+
+        user.password = await HashingUtils.hashPassword(user.password);
+
         const createdUser = await this.userRepository.create(user);
         return createdUser;
     }
