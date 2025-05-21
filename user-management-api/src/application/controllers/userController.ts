@@ -8,6 +8,15 @@ import { IUserService } from "../services/IServices/IUserService";
 export class UserController implements IUserController {
     constructor(@inject("UserService") private userService: IUserService) { }
 
+    async login(req: Request, res: Response): Promise<Response> {
+        try {
+            const { email, password } = req.body;
+            const token = await this.userService.login(email, password);
+            return res.status(200).json({ message:"Login efetuado com sucesso", token });
+        } catch (error: any) {
+            return res.status(401).json({ error: error.message });
+        }
+    }   
     async create(req: Request, res: Response): Promise<Response> {
         try {
             const { name, email, password, roleId } = req.body;
