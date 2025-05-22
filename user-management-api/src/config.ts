@@ -35,7 +35,8 @@ interface ControllerConfig {
 interface Config {
     port: number;
     database: DatabaseConfig;
-    jwtSecret: string;
+    jwtAccessSecret: string;
+    jwtRefreshSecret: string;
     api: ApiConfig;
     controllers: {
         role: ControllerConfig;
@@ -73,7 +74,9 @@ const config: Config = {
         }
     },
 
-    jwtSecret: process.env.JWT_SECRET || 'my sakdfho2390asjod$%jl)!sdjas0i secret',
+    jwtAccessSecret: process.env.JWT_ACCESS_SECRET || 'my sakdfho2390asjod$%jl)!sdjas0i secret',
+
+    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'my s$dr#ftg23321aspu%$%jlklgmuas0i secret',
 
     api: {
         prefix: '/api',

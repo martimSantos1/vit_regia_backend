@@ -1,39 +1,19 @@
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import config from "../../config";
+import { Request, Response, NextFunction } from 'express';
+import { verifyAccessToken } from '../../utils/authUtils';
 
-const SECRET = config.jwtSecret;
-
-interface JwtPayload {
-    id: number;
-    name: string;
-    email: string;
-    roleId: string;
-    iat?: number;
-    exp?: number;
-}
-
-export const authMiddleware = (req: Request, res: Response, next: NextFunction): void => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-        res.status(401).json({ message: "Authorization header missing" });
-        return;
-    }
-
-    const token = authHeader.split(" ")[1];
-
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    const token = req.cookies.access_token;
     if (!token) {
-        res.status(401).json({ message: "Token missing" });
+        res.status(401).json({ message: 'Access token missing' });
         return;
     }
 
     try {
-        const decoded = jwt.verify(token, SECRET) as JwtPayload;
+        const decoded = verifyAccessToken(token);
         (req as any).user = decoded;
         next();
-    } catch (error) {
-        res.status(401).json({ message: "Invalid or expired token" });
+    } catch (err) {
+        res.status(403).json({ message: 'Invalid or expired token' });
         return;
     }
 };

@@ -4,6 +4,7 @@ import { injectable, inject } from 'tsyringe';
 import { User } from '../../domain/entities/users/user';
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { IRoleRepository } from "../../domain/repositories/IRoleRepository";
+import { generateAccessToken, generateRefreshToken } from "../../utils/authUtils";
 import HashingUtils from "../../utils/hashingUtils";
 
 @injectable()
@@ -13,18 +14,24 @@ export class UserService implements IUserService {
         @inject('RoleRepository') private roleRepository: IRoleRepository
     ) { }
 
-    async login(email: string, password: string): Promise<string> {
+    async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string }> {
         const user = await this.userRepository.findByEmail(email);
-        if (!user) {
-            throw new Error('User not found');
-        }
+        if (!user) throw new Error('User not found');
 
         const isPasswordValid = await HashingUtils.comparePassword(password, user.password);
-        if (!isPasswordValid) {
-            throw new Error('Invalid password');
-        }
+        if (!isPasswordValid) throw new Error('Invalid password');
 
-        return HashingUtils.generateToken(user);
+        const payload = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            roleId: user.roleId
+        };
+
+        const accessToken = generateAccessToken(payload);
+        const refreshToken = generateRefreshToken(payload);
+
+        return { accessToken, refreshToken };
     }
 
     async createUser(user: { name: string; email: string; password: string; roleId: number }): Promise<User> {

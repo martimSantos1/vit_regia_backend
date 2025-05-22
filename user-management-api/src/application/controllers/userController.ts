@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { inject, injectable } from "tsyringe";
 import { IUserController } from "./IControllers/IUserController";
 import { IUserService } from "../services/IServices/IUserService";
+import { setAuthCookies } from "../../utils/authUtils";
 
 @injectable()
 export class UserController implements IUserController {
@@ -11,12 +12,13 @@ export class UserController implements IUserController {
     async login(req: Request, res: Response): Promise<Response> {
         try {
             const { email, password } = req.body;
-            const token = await this.userService.login(email, password);
-            return res.status(200).json({ message:"Login efetuado com sucesso", token });
+            const { accessToken, refreshToken } = await this.userService.login(email, password);
+            setAuthCookies(res, accessToken, refreshToken);
+            return res.status(200).json({ message: "Login efetuado com sucesso" });
         } catch (error: any) {
             return res.status(401).json({ error: error.message });
         }
-    }   
+    }
     async create(req: Request, res: Response): Promise<Response> {
         try {
             const { name, email, password, roleId } = req.body;
