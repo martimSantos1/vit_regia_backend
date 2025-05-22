@@ -33,17 +33,18 @@ export class UserController implements IUserController {
     async getAll(req: Request, res: Response): Promise<Response> {
         try {
             const users = await this.userService.getAllUsers();
-            return res.status(200).json(users);
+            return res.status(200).json({ message: "List of all users", users });
         } catch (error: any) {
-            return res.status(500).json({ message: error.message });
+            return res.status(500).json({ error: error.message });
         }
     }
     async getById(req: Request, res: Response): Promise<Response> {
         try {
-            console.log("getById");
-            return res.status(200).json({ message: "getById" });
+            const userId = (req as any).user.id;
+            const user = await this.userService.getUserById(userId);
+            return res.status(200).json({ message: "User found by id", user });
         } catch (error: any) {
-            return res.status(500).json({ message: error.message });
+            return res.status(500).json({ error: error.message });
         }
     }
     async update(req: Request, res: Response): Promise<Response> {

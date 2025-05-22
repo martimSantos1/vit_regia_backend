@@ -16,7 +16,7 @@ export default (app: Router) => {
         } catch (error) {
             next(error);
         }
-    });    
+    });
     router.post("/signup", async (req, res, next) => {
         try {
             await userController.create(req, res);
@@ -27,6 +27,13 @@ export default (app: Router) => {
     router.get("/all", authMiddleware, async (req, res, next) => {
         try {
             await userController.getAll(req, res);
+        } catch (error) {
+            next(error);
+        }
+    });
+    router.get("/profile", authMiddleware, async (req, res, next) => {
+        try {
+            await userController.getById(req, res);
         } catch (error) {
             next(error);
         }

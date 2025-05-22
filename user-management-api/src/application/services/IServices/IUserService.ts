@@ -1,4 +1,5 @@
 import { User } from "../../../domain/entities/users/user";
+import { UserDto } from "../../dto/userDTO";
 
 export interface IUserService {
     login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string }>;
@@ -6,6 +7,7 @@ export interface IUserService {
         name: string; 
         email: string; 
         password: string; 
-        roleId: number }): Promise<User>;
+        roleId: number }): Promise<UserDto>;
     getAllUsers(): Promise<User[]>;
+    getUserById(id: number): Promise<UserDto | null>;
 }

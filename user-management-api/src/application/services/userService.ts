@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { IUserService } from './IServices/IUserService';
 import { injectable, inject } from 'tsyringe';
 import { User } from '../../domain/entities/users/user';
+import { UserDto, toUserDto } from "../dto/userDTO";
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { IRoleRepository } from "../../domain/repositories/IRoleRepository";
 import { generateAccessToken, generateRefreshToken } from "../../utils/authUtils";
@@ -34,7 +35,7 @@ export class UserService implements IUserService {
         return { accessToken, refreshToken };
     }
 
-    async createUser(user: { name: string; email: string; password: string; roleId: number }): Promise<User> {
+    async createUser(user: { name: string; email: string; password: string; roleId: number }): Promise<UserDto> {
         if (!user.name || !user.email || !user.password) {
             throw new Error('All fields are required');
         }
@@ -61,10 +62,25 @@ export class UserService implements IUserService {
         user.password = await HashingUtils.hashPassword(user.password);
 
         const createdUser = await this.userRepository.create(user);
-        return createdUser;
+        if (!createdUser) {
+            throw new Error('Error creating user');
+        }
+
+        const userDto = await toUserDto(createdUser);
+
+        return userDto;
     }
 
     async getAllUsers(): Promise<User[]> {
         return this.userRepository.findAll();
+    }
+
+    async getUserById(id: number): Promise<UserDto | null> {
+        const userFound = await this.userRepository.findById(id);
+        if (!userFound) throw new Error('User not found');
+        
+        const user = await toUserDto(userFound);
+
+        return user;
     }
 }
