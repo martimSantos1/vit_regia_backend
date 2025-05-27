@@ -15,24 +15,19 @@ export class UserService implements IUserService {
         @inject('RoleRepository') private roleRepository: IRoleRepository
     ) { }
 
-    async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string }> {
+    async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string; userDto: UserDto }> {
         const user = await this.userRepository.findByEmail(email);
         if (!user) throw new Error('User not found');
 
         const isPasswordValid = await HashingUtils.comparePassword(password, user.password);
         if (!isPasswordValid) throw new Error('Invalid password');
 
-        const payload = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            roleId: user.roleId
-        };
+        const userDto = await toUserDto(user);
 
-        const accessToken = generateAccessToken(payload);
-        const refreshToken = generateRefreshToken(payload);
+        const accessToken = generateAccessToken(userDto);
+        const refreshToken = generateRefreshToken(userDto);
 
-        return { accessToken, refreshToken };
+        return { accessToken, refreshToken, userDto };
     }
 
     async createUser(user: { name: string; email: string; password: string; roleId: number }): Promise<UserDto> {

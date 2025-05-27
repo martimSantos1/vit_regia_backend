@@ -23,8 +23,13 @@ export default ({ app }: { app: express.Application }) => {
 
     // Alternate description:
     // Enable Cross Origin Resource Sharing to all origins by default
-    app.use(cors());
+    //app.use(cors());
 
+    app.use(cors({
+        origin: 'http://localhost:5173', // URL do teu frontend React
+        credentials: true,
+      }));
+      
 
     app.use(methodOverride());
 

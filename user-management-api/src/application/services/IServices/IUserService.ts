@@ -2,7 +2,7 @@ import { User } from "../../../domain/entities/users/user";
 import { UserDto } from "../../dto/userDTO";
 
 export interface IUserService {
-    login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string }>;
+    login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string; userDto: UserDto }>;
     createUser(user: { 
         name: string; 
         email: string; 

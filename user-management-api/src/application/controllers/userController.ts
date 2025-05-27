@@ -12,9 +12,9 @@ export class UserController implements IUserController {
     async login(req: Request, res: Response): Promise<Response> {
         try {
             const { email, password } = req.body;
-            const { accessToken, refreshToken } = await this.userService.login(email, password);
+            const { accessToken, refreshToken, userDto } = await this.userService.login(email, password);
             setAuthCookies(res, accessToken, refreshToken);
-            return res.status(200).json({ message: "Login efetuado com sucesso" });
+            return res.status(200).json({ message: "Login efetuado com sucesso", user: userDto });
         } catch (error: any) {
             return res.status(401).json({ error: error.message });
         }
@@ -30,6 +30,26 @@ export class UserController implements IUserController {
             return res.status(500).json({ error: error.message });
         }
     }
+    async logout(req: Request, res: Response): Promise<Response> {
+        try {
+            // Limpar os cookies HttpOnly
+            res.clearCookie("accessToken", {
+                httpOnly: true,
+                sameSite: "strict",
+                secure: process.env.NODE_ENV === "production",
+            });
+    
+            res.clearCookie("refreshToken", {
+                httpOnly: true,
+                sameSite: "strict",
+                secure: process.env.NODE_ENV === "production",
+            });
+    
+            return res.status(200).json({ message: "Logout efetuado com sucesso" });
+        } catch (error: any) {
+            return res.status(500).json({ error: error.message });
+        }
+    }    
     async getAll(req: Request, res: Response): Promise<Response> {
         try {
             const users = await this.userService.getAllUsers();
@@ -47,6 +67,8 @@ export class UserController implements IUserController {
             return res.status(500).json({ error: error.message });
         }
     }
+
+    // Falta implementar os métodos de update e delete
     async update(req: Request, res: Response): Promise<Response> {
         try {
             console.log("update");

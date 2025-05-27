@@ -24,6 +24,13 @@ export default (app: Router) => {
             next(error);
         }
     });
+    router.post("/logout", async (req, res, next) => {
+        try {
+            await userController.logout(req, res);
+        } catch (error) {
+            next(error);
+        }
+    });    
     router.get("/all", authMiddleware, async (req, res, next) => {
         try {
             await userController.getAll(req, res);
@@ -31,7 +38,7 @@ export default (app: Router) => {
             next(error);
         }
     });
-    router.get("/profile", authMiddleware, async (req, res, next) => {
+    router.get("/me", authMiddleware, async (req, res, next) => {
         try {
             await userController.getById(req, res);
         } catch (error) {
