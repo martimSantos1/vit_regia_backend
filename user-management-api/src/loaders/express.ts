@@ -26,7 +26,7 @@ export default ({ app }: { app: express.Application }) => {
     //app.use(cors());
 
     app.use(cors({
-        origin: 'http://localhost:5173', // URL do teu frontend React
+        origin: 'http://192.168.226.44:5173', // URL do frontend
         credentials: true,
       }));
       
