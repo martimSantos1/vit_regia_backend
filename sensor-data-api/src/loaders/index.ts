@@ -1,20 +1,11 @@
-import { Application } from 'express';
-import { Server as HttpServer } from 'http';
-import expressLoader from './express';
-import socketLoader from './socket';
+import { Application } from "express";
+import expressLoader from "./express";
+import { loadDependencies } from "./dependencyInjector";
 
-export default async ({
-    expressApp,
-    httpServer,
-}: {
-    expressApp: Application;
-    httpServer: HttpServer;
-}) => {
-    await expressLoader({ app: expressApp });
-    console.log('Express carregado');
+export default async ({ expressApp }: { expressApp: Application }) => {
+  loadDependencies(); // Carrega e verifica os serviços
+  console.log("✌️ Dependency Injector loaded");
 
-    await socketLoader({ server: httpServer });
-    console.log('Socket.IO carregado');
-
-    console.log('Loaders initialized.');
+  await expressLoader({ app: expressApp });
+  console.log("✌️ Express loaded");
 };

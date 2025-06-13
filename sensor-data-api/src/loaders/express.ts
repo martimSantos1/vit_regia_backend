@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import methodOverride from 'method-override';
-import routes from '../routes/index';
+import routes from '../api/routes/index';
 
 export default ({ app }: { app: express.Application }) => {
     /**

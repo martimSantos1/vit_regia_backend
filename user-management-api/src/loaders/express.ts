@@ -26,7 +26,7 @@ export default ({ app }: { app: express.Application }) => {
     //app.use(cors());
 
     app.use(cors({
-        origin: 'http://192.168.226.44:5173', // URL do frontend
+        origin: 'http://192.168.0.15:5173', // URL do frontend
         credentials: true,
       }));
       
