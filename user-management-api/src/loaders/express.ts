@@ -26,10 +26,11 @@ export default ({ app }: { app: express.Application }) => {
     //app.use(cors());
 
     app.use(cors({
-        origin: 'http://192.168.0.15:5173', // URL do frontend
-        credentials: true,
-      }));
-      
+        origin: ['http://localhost:5173', 'http://192.168.0.104:5173'], // lista de origens permitidas
+        credentials: true
+    }));
+
+
 
     app.use(methodOverride());
 
@@ -53,23 +54,23 @@ export default ({ app }: { app: express.Application }) => {
 
     /// error handlers
     // Middleware para tratar erros 401 (UnauthorizedError)
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
-    /**
-     * Handle 401 thrown by express-jwt library
-     */
-    if (err.name === 'UnauthorizedError') {
-        res.status(err.status || 401).send({ message: err.message }).end();
-        return;
-    }
-    next(err); // Certifique-se de chamar `next` para passar o erro para o próximo middleware
-});
-
-// Middleware genérico para tratar outros erros
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
-    res.status(err.status || 500).json({
-        errors: {
-            message: err.message,
-        },
+    app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
+        /**
+         * Handle 401 thrown by express-jwt library
+         */
+        if (err.name === 'UnauthorizedError') {
+            res.status(err.status || 401).send({ message: err.message }).end();
+            return;
+        }
+        next(err); // Certifique-se de chamar `next` para passar o erro para o próximo middleware
     });
-});
+
+    // Middleware genérico para tratar outros erros
+    app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
+        res.status(err.status || 500).json({
+            errors: {
+                message: err.message,
+            },
+        });
+    });
 };

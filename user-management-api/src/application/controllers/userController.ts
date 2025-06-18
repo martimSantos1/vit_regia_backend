@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import { inject, injectable } from "tsyringe";
 import { IUserController } from "./IControllers/IUserController";
 import { IUserService } from "../services/IServices/IUserService";
-import { setAuthCookies } from "../../utils/authUtils";
+import { setAuthCookies, verifyRefreshToken, generateAccessToken, clearAuthCookies } from "../../utils/authUtils";
 
 @injectable()
 export class UserController implements IUserController {
@@ -32,22 +32,33 @@ export class UserController implements IUserController {
     }
     async logout(req: Request, res: Response): Promise<Response> {
         try {
-            // Limpar os cookies HttpOnly
-            res.clearCookie("accessToken", {
-                httpOnly: true,
-                sameSite: "strict",
-                secure: process.env.NODE_ENV === "production",
-            });
-    
-            res.clearCookie("refreshToken", {
-                httpOnly: true,
-                sameSite: "strict",
-                secure: process.env.NODE_ENV === "production",
-            });
+            clearAuthCookies(res); // limpa os cookies de autenticação
     
             return res.status(200).json({ message: "Logout efetuado com sucesso" });
         } catch (error: any) {
             return res.status(500).json({ error: error.message });
+        }
+    }    
+    async refreshToken(req: Request, res: Response): Promise<Response> {
+        try {
+            const refreshToken = req.cookies?.refresh_token;
+            if (!refreshToken) {
+                return res.status(401).json({ error: "Refresh token não encontrado" });
+            }
+    
+            const decoded: any = verifyRefreshToken(refreshToken);
+            const user = await this.userService.getUserById(decoded.id);
+    
+            if (!user) {
+                return res.status(404).json({ error: "Utilizador não encontrado" });
+            }
+    
+            const accessToken = generateAccessToken({ id: user.id, roleId: user.role?.id });
+            setAuthCookies(res, accessToken, refreshToken); // renova o access_token
+    
+            return res.status(200).json({ message: "Token renovado", user: user });
+        } catch (error: any) {
+            return res.status(403).json({ error: "Refresh token inválido ou expirado" });
         }
     }    
     async getAll(req: Request, res: Response): Promise<Response> {

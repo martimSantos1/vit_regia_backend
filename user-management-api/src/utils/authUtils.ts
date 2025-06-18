@@ -5,6 +5,8 @@ import config from '../config';
 const ACCESS_EXPIRATION = '15m';
 const REFRESH_EXPIRATION = '7d';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const generateAccessToken = (payload: object) => {
     const ACCESS_SECRET = config.jwtAccessSecret;
     return jwt.sign(payload, ACCESS_SECRET, { expiresIn: ACCESS_EXPIRATION });
@@ -28,15 +30,15 @@ export const verifyRefreshToken = (token: string) => {
 export const setAuthCookies = (res: Response, accessToken: string, refreshToken: string) => {
     res.cookie('access_token', accessToken, {
         httpOnly: true,
-        secure: false, // apenas para desenvolvimento, deve ser true em produção
-        sameSite: 'none',
-        maxAge: 15 * 60 * 1000
+        secure: isProduction,            // true em produção (HTTPS), false em dev (HTTP)
+        sameSite: isProduction ? 'none' : 'lax', // 'none' em produção, 'lax' em dev
+        maxAge: 15 * 60 * 1000,
     });
     res.cookie('refresh_token', refreshToken, {
         httpOnly: true,
-        secure: true, // apenas para desenvolvimento, deve ser true em produção
-        sameSite: 'none',
-        maxAge: 7 * 24 * 60 * 60 * 1000
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 };
 

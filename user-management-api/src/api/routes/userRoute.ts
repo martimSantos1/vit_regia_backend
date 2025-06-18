@@ -30,7 +30,14 @@ export default (app: Router) => {
         } catch (error) {
             next(error);
         }
-    });    
+    });
+    router.post("/refresh", async (req, res, next) => {
+        try {
+            await userController.refreshToken(req, res);
+        } catch (error) {
+            next(error);
+        }
+    });
     router.get("/all", authMiddleware, async (req, res, next) => {
         try {
             await userController.getAll(req, res);
