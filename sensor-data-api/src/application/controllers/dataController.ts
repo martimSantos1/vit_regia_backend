@@ -30,7 +30,7 @@ export class DataController implements IDataController {
    * Obtém os últimos dados do sensor.
    * @param req - Requisição HTTP.
    * @param res - Resposta HTTP.
-   * @returns Últimos dados do sensor.
+   * @returns Últimos n dados do sensor.
    */
   async getLastData(req: Request, res: Response): Promise<Response> {
     try {
@@ -45,6 +45,30 @@ export class DataController implements IDataController {
 
       const responseMessage = `Últimos ${numberOfLastData} dados recebidos com sucesso`;
       return res.status(200).json({ message: responseMessage, data: lastData });
+
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Erro interno no servidor' });
+    }
+  }
+
+  /**
+   * Obtém dados do sensor por intervalo de tempo.
+   * @param req - Requisição HTTP contendo o intervalo de tempo.
+   * @param res - Resposta HTTP.
+   * @returns Dados do sensor no intervalo especificado.
+   */
+  async getDataByRange(req: Request, res: Response): Promise<Response> {
+    try {
+      const { range } = req.query;
+      const timeRange = range ? range.toString() : '30d'; // Padrão para 30 dias
+
+      const data = await this.dataService.getDataByRange(timeRange);
+
+      if (data.length === 0) {
+        return res.status(404).json({ message: 'Nenhum dado encontrado para o intervalo especificado.' });
+      }
+
+      return res.status(200).json({ message: `Dados obtidos com sucesso para o intervalo ${timeRange}`, data });
 
     } catch (error: any) {
       return res.status(500).json({ error: error.message || 'Erro interno no servidor' });

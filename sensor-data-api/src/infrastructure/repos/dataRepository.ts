@@ -78,4 +78,52 @@ export class DataRepository implements IDataRepository {
       throw new Error('Erro ao consultar os dados');
     }
   }
+
+  async getDataByRange(range: string): Promise<SensorData[]> {
+    const queryApi = getQueryApi();
+
+    const fluxQuery = `
+      from(bucket: "sensor-data")
+        |> range(start: -${range})
+        |> filter(fn: (r) => r._measurement == "sensor_data")
+        |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+    `;
+
+    const results: SensorData[] = [];
+
+    try {
+      const rows = await new Promise<any[]>((resolve, reject) => {
+        const buffer: any[] = [];
+
+        queryApi.queryRows(fluxQuery, {
+          next(row, tableMeta) {
+            const o = tableMeta.toObject(row);
+
+            const data = new SensorData(
+              o.temperature,
+              o.ph,
+              o.turbidity,
+              o.tds,
+              o.conductivity,
+              o.dissolved_oxygen,
+              o._time
+            );
+
+            results.push(data);
+          },
+          error(error) {
+            reject(error);
+          },
+          complete() {
+            resolve(results);
+          }
+        });
+      });
+
+      return rows;
+    } catch (error) {
+      console.error('Erro ao consultar dados por intervalo do InfluxDB:', error);
+      throw new Error('Erro ao consultar os dados por intervalo');
+    }
+  }
 }
