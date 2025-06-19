@@ -51,10 +51,10 @@ function getEnvVariable(key: string): string {
 const config: Config = {
     port: parseInt(process.env.PORT || '3000', 10),
     database: {
-        url: getEnvVariable('DB_URL'),
-        token: getEnvVariable('DB_TOKEN'),
-        org: getEnvVariable('DB_ORG'),
-        bucket: getEnvVariable('DB_BUCKET')
+        url: getEnvVariable('DB_URL') || 'http://localhost:8086',
+        token: getEnvVariable('DB_TOKEN') || 'cooYRBz96jXbZSlaamJ9ma2l-aBHNRmGZQyf56rAtrw0LuQonuEt4elVo7ONb1R8CEmuFE6O992czlVigNgF2Q==',
+        org: getEnvVariable('DB_ORG') || 'vitoria_regia',
+        bucket: getEnvVariable('DB_BUCKET') || 'sensor_data'
     },
     api: {
         prefix: getEnvVariable('API_PREFIX') || '/api',

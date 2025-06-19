@@ -1,5 +1,5 @@
-import { SensorData } from "../../../domain/entities/sensorData";
+import { DataDTO } from "../../dto/dataDTO";
 
 export interface IDataService {
-  registerSensorData(data: SensorData): void;
+  registerSensorData(data: DataDTO): Promise<DataDTO>;
 }

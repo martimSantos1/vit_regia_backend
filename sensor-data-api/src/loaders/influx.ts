@@ -1,10 +1,22 @@
+import { InfluxDB, WriteApi } from '@influxdata/influxdb-client';
 import config from '../config';
-import { InfluxDB } from '@influxdata/influxdb-client'
 
-const influxClient = new InfluxDB({ url: config.database.url, token: config.database.token });
+let writeApi: WriteApi;
 
-export const getInfluxClient = () => influxClient
-export const influxConfig = {
-  org: config.database.org,
-  bucket: config.database.bucket,
+export function initializeInflux() {
+  const { url, token, org, bucket } = config.database;
+
+  const influxClient = new InfluxDB({ url, token });
+
+  writeApi = influxClient.getWriteApi(org, bucket, 'ns'); // ns = precisão em nanossegundos
+  writeApi.useDefaultTags({ app: 'sensor-data-api' });
+
+  console.log('✅ InfluxDB initialized');
+}
+
+export function getWriteApi(): WriteApi {
+  if (!writeApi) {
+    throw new Error('InfluxDB write API not initialized. Call initializeInflux() first.');
+  }
+  return writeApi;
 }
