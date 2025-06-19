@@ -10,14 +10,10 @@ if (result.error) {
 
 
 interface DatabaseConfig {
-    name: string;
-    user: string;
-    password: string;
-    server: {
-        host: string;
-        port: number;
-        dialect: string;
-    }
+    url: string;
+    token: string;
+    org: string;
+    bucket: string;
 }
 
 interface ApiConfig {
@@ -55,14 +51,10 @@ function getEnvVariable(key: string): string {
 const config: Config = {
     port: parseInt(process.env.PORT || '3000', 10),
     database: {
-        name: getEnvVariable('DB_NAME'),
-        user: getEnvVariable('DB_USER'),
-        password: getEnvVariable('DB_PASSWORD'),
-        server: {
-            host: getEnvVariable('DB_HOST'),
-            port: parseInt(process.env.DB_PORT || '5432', 10),
-            dialect: getEnvVariable('DB_DIALECT') as 'postgres' | 'mysql' | 'sqlite' | 'mssql',
-        }
+        url: getEnvVariable('DB_URL'),
+        token: getEnvVariable('DB_TOKEN'),
+        org: getEnvVariable('DB_ORG'),
+        bucket: getEnvVariable('DB_BUCKET')
     },
     api: {
         prefix: getEnvVariable('API_PREFIX') || '/api',

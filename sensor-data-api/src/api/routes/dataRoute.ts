@@ -9,9 +9,9 @@ export default (app: Router) => {
 
     const dataController = container.resolve<IDataController>('DataController');
 
-    router.post("/processData", async (req, res) => {
+    router.post("/registerData", async (req, res) => {
         try {
-            await dataController.receiveData(req, res);
+            await dataController.registerData(req, res);
         } catch (error) {
             console.error('Erro ao processar a requisição:', error);
             res.status(500).json({ error: 'Erro interno do servidor' });
