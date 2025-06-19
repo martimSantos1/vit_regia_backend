@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 
 export interface IDataController {
-  registerData(req: Request, res: Response): Promise<void>;
+  registerData(req: Request, res: Response): Promise<Response>;
+  getLastData(req: Request, res: Response): Promise<Response>;
 }

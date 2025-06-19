@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import { IDataService } from "./IServices/IDataService";
 import { IDataRepository } from "../../domain/repositories/IDataRepository";
-import { DataDTO } from "../dto/dataDTO";
+import { dataDTO, DataDTO } from "../dto/dataDTO";
 import { SensorData } from "../../domain/entities/sensorData";
 
 
@@ -11,7 +11,7 @@ export class DataService implements IDataService {
     @inject('DataRepository') private dataRepository: IDataRepository
   ) { }
 
-  public registerSensorData(data: DataDTO): Promise<DataDTO> {
+  async registerSensorData(data: DataDTO): Promise<DataDTO> {
     try {
       const sensorData = new SensorData(
         data.temperature,
@@ -27,5 +27,16 @@ export class DataService implements IDataService {
       throw new Error('Dados inválidos');
     }
     return Promise.resolve(data);
+  }
+
+  async getLastSensorData(numberOfData: number): Promise<DataDTO[]> {
+    try {
+      const lastData = await this.dataRepository.getLastSensorData(numberOfData);
+      const dataDTOs = dataDTO.array().parse(lastData);
+      return dataDTOs;
+    } catch (error) {
+      console.error('Erro ao obter os últimos dados:', error);
+      throw new Error('Erro ao obter os últimos dados');
+    }
   }
 }

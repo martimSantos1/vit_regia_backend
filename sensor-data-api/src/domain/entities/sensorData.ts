@@ -5,7 +5,8 @@ export class SensorData {
         public readonly turbidity: number,
         public readonly tds: number,
         public readonly conductivity: number,
-        public readonly dissolvedOxygen: number
+        public readonly dissolvedOxygen: number,
+        public timestamp?: string
     ) {
         if (temperature < -50 || temperature > 100) throw new Error('Temperatura inválida');
         if (ph < 0 || ph > 14) throw new Error('PH inválido');

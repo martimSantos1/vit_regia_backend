@@ -2,30 +2,79 @@ import { injectable } from 'tsyringe';
 import { IDataRepository } from '../../domain/repositories/IDataRepository';
 import { SensorData } from '../../domain/entities/sensorData';
 
-import { Point } from '@influxdata/influxdb-client';
-import { getWriteApi } from '../../loaders/influx';
-import { write } from 'fs';
+import { Point, flux } from '@influxdata/influxdb-client';
+import { getWriteApi, getQueryApi } from '../../loaders/influx';
 
 @injectable()
 export class DataRepository implements IDataRepository {
+
   async saveSensorData(data: SensorData): Promise<void> {
-    const writeApi = getWriteApi(); // obtém a instância do WriteApi
-
-    const point = new Point('sensor_data') // nome da "measurement"
-      .floatField('temperature', data.temperature)
-      .floatField('ph', data.ph)
-      .floatField('turbidity', data.turbidity)
-      .floatField('tds', data.tds)
-      .floatField('conductivity', data.conductivity)
-      .floatField('dissolved_oxygen', data.dissolvedOxygen)
-      .timestamp(new Date());
-
-    writeApi.writePoint(point);
-
     try {
-      await writeApi.close(); // garante que os dados são enviados
+      const writeApi = getWriteApi(); // obtém a instância do WriteApi
+
+      const point = new Point('sensor_data') // nome da "measurement"
+        .floatField('temperature', data.temperature)
+        .floatField('ph', data.ph)
+        .floatField('turbidity', data.turbidity)
+        .floatField('tds', data.tds)
+        .floatField('conductivity', data.conductivity)
+        .floatField('dissolved_oxygen', data.dissolvedOxygen)
+        .timestamp(new Date());
+
+      writeApi.writePoint(point);
+      await writeApi.close();
     } catch (error) {
       console.error('Erro ao gravar dados no InfluxDB:', error);
+    }
+  }
+
+  async getLastSensorData(numberOfData: number): Promise<SensorData[]> {
+    const queryApi = getQueryApi();
+
+    const fluxQuery = `
+      from(bucket: "sensor-data")
+        |> range(start: -30d)
+        |> filter(fn: (r) => r._measurement == "sensor_data")
+        |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+        |> sort(columns: ["_time"], desc: true)
+        |> limit(n: ${numberOfData})
+    `;
+
+    const results: SensorData[] = [];
+
+    try {
+      const rows = await new Promise<any[]>((resolve, reject) => {
+        const buffer: any[] = [];
+
+        queryApi.queryRows(fluxQuery, {
+          next(row, tableMeta) {
+            const o = tableMeta.toObject(row);
+
+            const data = new SensorData(
+              o.temperature,
+              o.ph,
+              o.turbidity,
+              o.tds,
+              o.conductivity,
+              o.dissolved_oxygen,
+              o._time
+            );
+            
+            results.push(data);
+          },
+          error(error) {
+            reject(error);
+          },
+          complete() {
+            resolve(results);
+          }
+        });
+      });
+
+      return rows;
+    } catch (error) {
+      console.error('Erro ao consultar os últimos dados do InfluxDB:', error);
+      throw new Error('Erro ao consultar os dados');
     }
   }
 }

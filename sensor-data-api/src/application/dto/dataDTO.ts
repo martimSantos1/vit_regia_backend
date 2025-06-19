@@ -7,6 +7,7 @@ export const dataDTO = z.object({
   tds: z.number().min(0).max(1000),
   conductivity: z.number().min(0).max(1000),
   dissolvedOxygen: z.number().min(0).max(20),
+  timestamp: z.string().datetime().optional()
 });
 
 export type DataDTO = z.infer<typeof dataDTO>;

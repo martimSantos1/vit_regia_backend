@@ -17,4 +17,13 @@ export default (app: Router) => {
             res.status(500).json({ error: 'Erro interno do servidor' });
         }
     });
+
+    router.get("/getLastData", async (req, res) => {
+        try {
+            await dataController.getLastData(req, res);
+        } catch (error) {
+            console.error('Erro ao processar a requisição:', error);
+            res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+    });
 }
