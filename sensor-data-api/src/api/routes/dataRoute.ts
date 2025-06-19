@@ -18,6 +18,7 @@ export default (app: Router) => {
         }
     });
 
+    // Endpoint to get the last n-records of sensor data
     router.get("/getLastData", async (req, res) => {
         try {
             await dataController.getLastData(req, res);

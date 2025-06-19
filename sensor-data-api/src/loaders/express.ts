@@ -22,7 +22,10 @@ export default ({ app }: { app: express.Application }) => {
 
     // Alternate description:
     // Enable Cross Origin Resource Sharing to all origins by default
-    app.use(cors());
+    app.use(cors({
+        origin: ['http://localhost:5173', 'http://192.168.1.132:5173'], // lista de origens permitidas
+        credentials: true
+    }));
 
 
     app.use(methodOverride());

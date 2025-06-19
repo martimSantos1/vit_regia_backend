@@ -22,7 +22,8 @@ export class DataRepository implements IDataRepository {
         .timestamp(new Date());
 
       writeApi.writePoint(point);
-      await writeApi.close();
+      writeApi.writePoint(point);
+      await writeApi.flush(); // <--- Isto força o envio ao Influx
     } catch (error) {
       console.error('Erro ao gravar dados no InfluxDB:', error);
     }
@@ -33,7 +34,7 @@ export class DataRepository implements IDataRepository {
 
     const fluxQuery = `
       from(bucket: "sensor-data")
-        |> range(start: -30d)
+        |> range(start: -10m)
         |> filter(fn: (r) => r._measurement == "sensor_data")
         |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
         |> sort(columns: ["_time"], desc: true)
@@ -59,7 +60,7 @@ export class DataRepository implements IDataRepository {
               o.dissolved_oxygen,
               o._time
             );
-            
+
             results.push(data);
           },
           error(error) {
