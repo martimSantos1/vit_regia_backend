@@ -89,13 +89,13 @@ export class UserController implements IUserController {
         }
     }
 
-    // Falta implementar os métodos de delete
     async delete(req: Request, res: Response): Promise<Response> {
         try {
-            console.log("delete");
-            return res.status(200).json({ message: "User deleted successfully" });
-        } catch (error: any) {
-            return res.status(500).json({ message: error.message });
+            const userId = (req as any).user.id;
+            await this.userService.deleteUser(userId);
+            return res.clearCookie('access_token').clearCookie('refresh_token').status(200).json({ message: 'Conta apagada com sucesso' });
+        } catch (error) {
+            return res.status(500).json({ message: 'Erro ao apagar utilizador' });
         }
     }
 }

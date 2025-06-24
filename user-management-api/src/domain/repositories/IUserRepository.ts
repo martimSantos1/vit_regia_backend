@@ -18,5 +18,5 @@ export interface IUserRepository {
 
     findByUsername(name: string): Promise<User | null>;
 
-    delete(name: string): Promise<void>;
+    delete(id: number): Promise<void>;
 }

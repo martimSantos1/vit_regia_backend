@@ -59,4 +59,11 @@ export default (app: Router) => {
             next(error);
         }
     });
+    router.delete("/delete", authMiddleware, async (req, res, next) => {
+        try {
+            await userController.delete(req, res);
+        } catch (error) {
+            next(error);
+        }
+    });
 };

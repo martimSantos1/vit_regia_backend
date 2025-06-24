@@ -48,9 +48,9 @@ export class UserRepository implements IUserRepository {
         return db.models.User.findByPk(id, { include: ['role'] });
     }
 
-    async delete(name: string): Promise<void> {
+    async delete(id: number): Promise<void> {
         const db = await database();
-        await db.models.User.destroy({ where: { name } });
+        await db.models.User.destroy({ where: { id } });
     }
 
     async findByEmail(email: string): Promise<User | null> {
