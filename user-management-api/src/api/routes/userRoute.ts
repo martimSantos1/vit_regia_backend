@@ -52,4 +52,11 @@ export default (app: Router) => {
             next(error);
         }
     });
+    router.patch("/update", authMiddleware, async (req, res, next) => {
+        try {
+            await userController.update(req, res);
+        } catch (error) {
+            next(error);
+        }
+    });
 };

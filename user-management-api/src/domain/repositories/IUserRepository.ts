@@ -8,6 +8,8 @@ export interface IUserRepository {
         roleId: number;
     }): Promise<User>;
 
+    save(user: Partial<User> & { id: number }): Promise<User>;
+
     findAll(): Promise<User[]>;
 
     findById(id: number): Promise<User | null>;

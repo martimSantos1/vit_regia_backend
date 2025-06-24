@@ -8,6 +8,7 @@ export interface IUserService {
         email: string; 
         password: string; 
         roleId: number }): Promise<UserDto>;
+    updateUser(id: number, name: string): Promise<UserDto | null>;
     getAllUsers(): Promise<User[]>;
     getUserById(id: number): Promise<UserDto | null>;
 }

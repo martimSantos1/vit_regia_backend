@@ -35,13 +35,10 @@ export class UserService implements IUserService {
             throw new Error('All fields are required');
         }
 
-        const existingUsers = await this.userRepository.findAll();
-        const userExists = existingUsers.some((existingUser) =>
-            existingUser.email.toLowerCase() === user.email.toLowerCase() ||
-            existingUser.name.toLowerCase() === user.name.toLowerCase()
-        );
+        const userExistsByEmail = await this.checkUserAlreadyExistsByEmail(user.email);
+        const userExistsByUserName = await this.checkUserAlreadyExistsByUserName(user.name);
 
-        if (userExists) {
+        if (userExistsByEmail || userExistsByUserName) {
             throw new Error('User already exists');
         }
 
@@ -66,6 +63,28 @@ export class UserService implements IUserService {
         return userDto;
     }
 
+    async updateUser(id: number, name: string): Promise<UserDto | null> {
+        try {
+            const userFound = await this.userRepository.findById(id);
+            if (!userFound) {
+                throw new Error('Utilizador não encontrado');
+            }
+            if (userFound.name == name) {
+                throw new Error('O nome deve ser diferente do atual');
+            }
+            const nameAlreadyTaken = await this.checkUserAlreadyExistsByUserName(name);
+            if (nameAlreadyTaken) {
+                throw new Error('Nome de utilizador já está em uso');
+            }
+            userFound.name = name;
+            const result = await this.userRepository.save(userFound);
+            return toUserDto(result);
+        } catch (error: any) {
+            throw new Error('Erro ao atualizar utilizador: ' + error.message);
+        }
+    }
+
+
     async getAllUsers(): Promise<User[]> {
         return this.userRepository.findAll();
     }
@@ -73,9 +92,19 @@ export class UserService implements IUserService {
     async getUserById(id: number): Promise<UserDto | null> {
         const userFound = await this.userRepository.findById(id);
         if (!userFound) throw new Error('User not found');
-        
+
         const user = await toUserDto(userFound);
 
         return user;
+    }
+
+    async checkUserAlreadyExistsByEmail(email: string): Promise<boolean> {
+        const existingUser = await this.userRepository.findByEmail(email);
+        return !!existingUser && existingUser.email.toLowerCase() === email.toLowerCase();
+    }
+
+    async checkUserAlreadyExistsByUserName(name: string): Promise<boolean> {
+        const existingUser = await this.userRepository.findByUsername(name);
+        return !!existingUser && existingUser.name.toLowerCase() === name.toLowerCase();
     }
 }
