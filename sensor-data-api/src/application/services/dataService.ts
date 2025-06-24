@@ -46,7 +46,7 @@ export class DataService implements IDataService {
 
   async getDataByRange(range: string): Promise<DataDTO[]> {
     try {
-      const validRanges = ['1h', '6h', '12h', '1d', '3d', '7d', '30d', '90d', '180d', '1y'];
+      const validRanges = ['1h', '3h', '6h', '12h', '1d', '3d', '7d', '30d', '90d', '180d', '1y'];
       if (!validRanges.includes(range)) {
         throw new Error(`Intervalo inválido. Intervalos válidos: ${validRanges.join(', ')}`);
       }

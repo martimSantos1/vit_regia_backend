@@ -28,6 +28,7 @@ interface ComponentConfig {
 interface Config {
     port: number;
     database: DatabaseConfig;
+    frontendUrl: string;
     api: ApiConfig;
     controllers: {
         data: ComponentConfig;
@@ -56,6 +57,7 @@ const config: Config = {
         org: getEnvVariable('DB_ORG') || 'vitoria_regia',
         bucket: getEnvVariable('DB_BUCKET') || 'sensor_data'
     },
+    frontendUrl: getEnvVariable('FRONTEND_URL'),
     api: {
         prefix: getEnvVariable('API_PREFIX') || '/api',
     },

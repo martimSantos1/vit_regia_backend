@@ -35,6 +35,7 @@ interface ControllerConfig {
 interface Config {
     port: number;
     database: DatabaseConfig;
+    frontendUrl: string;
     jwtAccessSecret: string;
     jwtRefreshSecret: string;
     api: ApiConfig;
@@ -73,6 +74,8 @@ const config: Config = {
             dialect: getEnvVariable('DB_DIALECT'),
         }
     },
+
+    frontendUrl: getEnvVariable('FRONTEND_URL'),
 
     jwtAccessSecret: process.env.JWT_ACCESS_SECRET || 'my sakdfho2390asjod$%jl)!sdjas0i secret',
 

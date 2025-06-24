@@ -1,3 +1,4 @@
+import config from '../config';
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -26,7 +27,7 @@ export default ({ app }: { app: express.Application }) => {
     //app.use(cors());
 
     app.use(cors({
-        origin: ['http://localhost:5173', 'http://192.168.1.132:5173'], // lista de origens permitidas
+        origin: ['http://localhost:5173', config.frontendUrl], // lista de origens permitidas
         credentials: true
     }));
 
