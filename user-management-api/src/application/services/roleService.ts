@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { injectable, inject } from "tsyringe";
 import { IRoleService } from "./IServices/IRoleService";
-import { Role } from "../../domain/entities/roles/role";
+import { Role } from "../../domain/models/roles/role";
 import { IRoleRepository } from "../../domain/repositories/IRoleRepository";
 
 @injectable()

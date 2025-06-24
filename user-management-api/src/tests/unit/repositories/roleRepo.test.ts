@@ -1,5 +1,5 @@
 import { RoleRepository } from "../../../infrastruture/repos/roleRepo";
-import Role from "../../../domain/entities/roles/role";
+import Role from "../../../domain/models/roles/role";
 
 jest.mock("../../../loaders/sequelize", () => ({
   __esModule: true,

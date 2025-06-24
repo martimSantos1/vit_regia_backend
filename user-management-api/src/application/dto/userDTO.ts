@@ -1,4 +1,4 @@
-import { User } from "../../domain/entities/users/user";
+import { User } from "../../domain/models/users/user";
 
 export interface UserDto {
     id: number;

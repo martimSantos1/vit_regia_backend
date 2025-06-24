@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize-typescript';
 import config from '../config';
-import { Role } from '../domain/entities/roles/role';
-import { User } from '../domain/entities/users/user';
+import { Role } from '../domain/models/roles/role';
+import { User } from '../domain/models/users/user';
 
 interface Db {
   sequelize: Sequelize;

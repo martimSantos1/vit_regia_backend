@@ -1,4 +1,4 @@
-import RoleName from "../../../domain/entities/roles/roleName";
+import RoleName from "../../../domain/models/roles/roleName";
 
 describe("RoleName", () => {
     it("Deve lançar erro se o nome começar com letra minúscula", () => {

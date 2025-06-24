@@ -1,6 +1,6 @@
 import { RoleService } from "../../../application/services/roleService";
 import { IRoleRepository } from "../../../domain/repositories/IRoleRepository";
-import Role from "../../../domain/entities/roles/role";
+import Role from "../../../domain/models/roles/role";
 
 describe("RoleService", () => {
   let roleRepository: jest.Mocked<IRoleRepository>;

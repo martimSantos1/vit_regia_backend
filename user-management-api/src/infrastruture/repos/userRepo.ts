@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { IUserRepository } from "../../domain/repositories/IUserRepository";
 import { injectable } from "tsyringe";
 import database from "../../loaders/sequelize";
-import { User } from "../../domain/entities/users/user";
+import { User } from "../../domain/models/users/user";
 import { CreationAttributes, UpdateOptions } from "sequelize";
 
 @injectable()

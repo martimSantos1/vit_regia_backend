@@ -1,4 +1,4 @@
-import { Role } from "../../../domain/entities/roles/role";
+import { Role } from "../../../domain/models/roles/role";
 
 export interface IRoleService {
     createRole(data: string): Promise<Role>;

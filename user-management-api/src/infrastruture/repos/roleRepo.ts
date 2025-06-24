@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { IRoleRepository } from "../../domain/repositories/IRoleRepository";
 import { injectable } from "tsyringe";
 import setupDatabase from "../../loaders/sequelize";
-import { Role } from "../../domain/entities/roles/role";
+import { Role } from "../../domain/models/roles/role";
 import { CreationAttributes } from 'sequelize';
 
 

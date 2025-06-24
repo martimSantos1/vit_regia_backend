@@ -1,4 +1,4 @@
-import { User } from "../../../domain/entities/users/user";
+import { User } from "../../../domain/models/users/user";
 import { UserDto } from "../../dto/userDTO";
 
 export interface IUserService {

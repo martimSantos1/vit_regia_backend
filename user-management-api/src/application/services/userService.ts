@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { IUserService } from './IServices/IUserService';
 import { injectable, inject } from 'tsyringe';
-import { User } from '../../domain/entities/users/user';
+import { User } from '../../domain/models/users/user';
 import { UserDto, toUserDto } from "../dto/userDTO";
 import { IUserRepository } from '../../domain/repositories/IUserRepository';
 import { IRoleRepository } from "../../domain/repositories/IRoleRepository";
