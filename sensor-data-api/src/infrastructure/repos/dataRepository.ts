@@ -17,7 +17,6 @@ export class DataRepository implements IDataRepository {
         .floatField('ph', data.ph)
         .floatField('turbidity', data.turbidity)
         .floatField('tds', data.tds)
-        .floatField('conductivity', data.conductivity)
         .floatField('dissolved_oxygen', data.dissolvedOxygen)
         .timestamp(new Date());
 
@@ -56,7 +55,6 @@ export class DataRepository implements IDataRepository {
               o.ph,
               o.turbidity,
               o.tds,
-              o.conductivity,
               o.dissolved_oxygen,
               o._time
             );
@@ -104,7 +102,6 @@ export class DataRepository implements IDataRepository {
               o.ph,
               o.turbidity,
               o.tds,
-              o.conductivity,
               o.dissolved_oxygen,
               o._time
             );

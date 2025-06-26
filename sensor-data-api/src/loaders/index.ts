@@ -2,9 +2,10 @@ import { Application } from "express";
 import expressLoader from "./express";
 import { loadDependencies } from "./dependencyInjector";
 import { initializeInflux } from "./influx";
+import { initializeFirebase } from "./firebase";
 
 export default async ({ expressApp }: { expressApp: Application }) => {
-  loadDependencies(); // Carrega e verifica os serviços
+  loadDependencies();
   console.log("✌️ Dependency Injector loaded");
 
   await expressLoader({ app: expressApp });
@@ -12,4 +13,7 @@ export default async ({ expressApp }: { expressApp: Application }) => {
 
   await initializeInflux();
   console.log("✌️ InfluxDB client loaded");
+
+  initializeFirebase();
+  console.log("✌️ Firebase initialized");
 };

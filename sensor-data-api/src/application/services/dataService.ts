@@ -2,11 +2,26 @@ import { inject, injectable } from "tsyringe";
 import { IDataService } from "./IServices/IDataService";
 import { IDataRepository } from "../../domain/repositories/IDataRepository";
 import { dataDTO, DataDTO } from "../dto/dataDTO";
-import { SensorData } from "../../domain/entities/sensorData";
+import { SensorData, Status } from "../../domain/entities/sensorData";
+import admin from "firebase-admin";
 
+type ParamKey =
+  | "temperatureStatus"
+  | "phStatus"
+  | "turbidityStatus"
+  | "tdsStatus"
+  | "dissolvedOxygenStatus";
 
 @injectable()
 export class DataService implements IDataService {
+  private lastAlertStatus: Record<ParamKey, Status> = {
+    temperatureStatus: "good",
+    phStatus: "good",
+    turbidityStatus: "good",
+    tdsStatus: "good",
+    dissolvedOxygenStatus: "good",
+  };
+
   constructor(
     @inject('DataRepository') private dataRepository: IDataRepository
   ) { }
@@ -18,14 +33,19 @@ export class DataService implements IDataService {
         data.ph,
         data.turbidity,
         data.tds,
-        data.conductivity,
         data.dissolvedOxygen
       );
-      this.dataRepository.saveSensorData(sensorData);
+
+      await this.dataRepository.saveSensorData(sensorData);
+
+      // Verifica alterações críticas
+      this.checkAndSendCriticalAlert(sensorData);
+
     } catch (error) {
       console.error('Erro ao processar os dados:', error);
       throw new Error('Dados inválidos');
     }
+
     return Promise.resolve(data);
   }
 
@@ -56,6 +76,65 @@ export class DataService implements IDataService {
     } catch (error) {
       console.error('Erro ao obter dados por intervalo:', error);
       throw new Error('Erro ao obter dados por intervalo');
+    }
+  }
+
+  private async checkAndSendCriticalAlert(sensorData: SensorData): Promise<void> {
+    const statusMap: Record<ParamKey, Status> = {
+      temperatureStatus: sensorData.temperatureStatus,
+      phStatus: sensorData.phStatus,
+      turbidityStatus: sensorData.turbidityStatus,
+      tdsStatus: sensorData.tdsStatus,
+      dissolvedOxygenStatus: sensorData.dissolvedOxygenStatus,
+    };
+
+    const criticalParams: string[] = [];
+
+    for (const key of Object.keys(statusMap) as ParamKey[]) {
+      const currentStatus = statusMap[key];
+      const previousStatus = this.lastAlertStatus[key];
+
+      if (currentStatus === "critical" && previousStatus !== "critical") {
+        criticalParams.push(this.mapParamKeyToLabel(key));
+        this.lastAlertStatus[key] = "critical"; // atualizar estado
+      }
+
+      if (currentStatus !== "critical") {
+        this.lastAlertStatus[key] = currentStatus; // atualizar mesmo para good ou alarming
+      }
+    }
+
+    if (criticalParams.length > 0) {
+      const body =
+        criticalParams.length === 1
+          ? `Parâmetro crítico: ${criticalParams[0]}`
+          : `Parâmetros críticos: ${criticalParams.join(", ")}`;
+
+      try {
+        // 🔥 Envia a notificação via FCM
+        await admin.messaging().send({
+          topic: "alerts",
+          notification: {
+            title: "Vitória Régia - Alerta Crítico",
+            body,
+          },
+        });
+
+        console.log("🔔 Notificação enviada via Firebase:", body);
+      } catch (error) {
+        console.error("Erro ao enviar notificação Firebase:", error);
+      }
+    }
+  }
+
+  private mapParamKeyToLabel(key: ParamKey): string {
+    switch (key) {
+      case "temperatureStatus": return "Temperatura";
+      case "phStatus": return "pH";
+      case "turbidityStatus": return "Turbidez";
+      case "tdsStatus": return "TDS";
+      case "dissolvedOxygenStatus": return "Oxigénio Dissolvido";
+      default: return key;
     }
   }
 }
