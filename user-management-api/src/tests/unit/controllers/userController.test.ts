@@ -95,6 +95,15 @@ describe("UserController", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ message: "Logout efetuado com sucesso" });
     });
+
+    it("should return 500 if logout fails", async () => {
+      jest.spyOn(authUtils, "clearAuthCookies").mockImplementation(() => { throw new Error("Erro logout"); });
+
+      await userController.logout(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: "Erro logout" });
+    });
   });
 
   describe("refreshToken", () => {
@@ -134,6 +143,16 @@ describe("UserController", () => {
       expect(res.status).toHaveBeenCalledWith(403);
       expect(res.json).toHaveBeenCalledWith({ error: "Refresh token inválido ou expirado" });
     });
+
+    it("should return 403 if unexpected error occurs", async () => {
+      req.cookies = { refresh_token: "valid" };
+      jest.spyOn(authUtils, "verifyRefreshToken").mockImplementation(() => { throw new Error("Erro inesperado"); });
+
+      await userController.refreshToken(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({ error: "Refresh token inválido ou expirado" });
+    });
   });
 
   describe("getAll", () => {
@@ -145,6 +164,15 @@ describe("UserController", () => {
 
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ message: "List of all users", users });
+    });
+
+    it("should return 500 if getAllUsers fails", async () => {
+      userService.getAllUsers.mockRejectedValue(new Error("Erro ao obter utilizadores"));
+
+      await userController.getAll(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: "Erro ao obter utilizadores" });
     });
   });
 
@@ -159,6 +187,16 @@ describe("UserController", () => {
       expect(userService.getUserById).toHaveBeenCalledWith(1);
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ message: "User found by id", user: userDto });
+    });
+
+    it("should return 500 if getUserById fails", async () => {
+      (req as any).user = { id: 1 };
+      userService.getUserById.mockRejectedValue(new Error("Erro ao buscar utilizador"));
+
+      await userController.getById(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: "Erro ao buscar utilizador" });
     });
   });
 
@@ -175,6 +213,17 @@ describe("UserController", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ message: "Username atualizado", user: updatedUser });
     });
+
+    it("should return 500 if updateUser fails", async () => {
+      (req as any).user = { id: 1 };
+      req.body = { name: "Novo Nome" };
+      userService.updateUser.mockRejectedValue(new Error("Erro ao atualizar utilizador"));
+
+      await userController.update(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ message: "Erro ao atualizar utilizador" });
+    });
   });
 
   describe("delete", () => {
@@ -189,5 +238,27 @@ describe("UserController", () => {
       expect(res.status).toHaveBeenCalledWith(200);
       expect(res.json).toHaveBeenCalledWith({ message: "Conta apagada com sucesso" });
     });
+
+    it("should return 500 if deleteUser fails", async () => {
+      (req as any).user = { id: 1 };
+      userService.deleteUser.mockRejectedValue(new Error("Erro interno"));
+
+      await userController.delete(req as Request, res as Response);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ message: "Erro ao apagar utilizador" });
+    });
+  });
+  it("should return 404 if user not found after decoding token", async () => {
+    req.cookies = { refresh_token: "validToken" };
+    const decoded = { id: 99 };
+
+    jest.spyOn(authUtils, "verifyRefreshToken").mockReturnValue(decoded);
+    userService.getUserById.mockResolvedValue(null); // user inexistente
+
+    await userController.refreshToken(req as Request, res as Response);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+    expect(res.json).toHaveBeenCalledWith({ error: "Utilizador não encontrado" });
   });
 });

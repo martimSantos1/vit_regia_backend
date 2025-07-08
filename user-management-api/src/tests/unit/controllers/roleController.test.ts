@@ -63,4 +63,31 @@ describe("RoleController", () => {
       expect(res.json).toHaveBeenCalledWith(mockRoles);
     });
   });
+  it("deve retornar 500 se ocorrer um erro ao criar o role", async () => {
+    const req = mockRequest();
+    req.body = { name: "Admin" };
+    const res = mockResponse();
+
+    const error = new Error("Erro ao criar role");
+    roleService.createRole.mockRejectedValue(error);
+
+    await roleController.create(req, res);
+
+    expect(roleService.createRole).toHaveBeenCalledWith("Admin");
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: "Erro ao criar role" });
+  });
+  it("deve retornar 500 se ocorrer um erro ao buscar todas as roles", async () => {
+    const req = mockRequest();
+    const res = mockResponse();
+
+    const error = new Error("Erro ao buscar roles");
+    roleService.getAllRoles.mockRejectedValue(error);
+
+    await roleController.getAll(req, res);
+
+    expect(roleService.getAllRoles).toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(res.json).toHaveBeenCalledWith({ message: "Erro ao buscar roles" });
+  });
 });
