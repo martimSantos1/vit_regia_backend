@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import { DataController } from './application/controllers/dataController';
 import { DataService } from './application/services/dataService';
 import { DataRepository } from './infrastructure/repos/dataRepository';
+import { ThresholdService } from './application/services/thresholdService';
 
 const result = dotenv.config();
 if (result.error) {
@@ -34,6 +35,7 @@ interface Config {
         data: ComponentConfig;
     };
     services: {
+        threshold: ComponentConfig;
         data: ComponentConfig;
     };
     repos: {
@@ -68,10 +70,14 @@ const config: Config = {
         }
     },
     services: {
+        threshold: {
+            token: 'ThresholdService',
+            useClass: ThresholdService
+        },
         data: {
             token: 'DataService',
             useClass: DataService
-        }
+        }        
     },
     repos: {
         data: {

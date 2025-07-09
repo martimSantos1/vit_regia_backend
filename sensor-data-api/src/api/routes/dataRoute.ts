@@ -19,7 +19,6 @@ export default (app: Router) => {
      *   "ph": 7.0,                // Valor de pH
      *   "turbidity": 1.2,         // Turbidez em NTU
      *   "tds": 300,               // Total de sólidos dissolvidos (TDS) em ppm
-     *   "conductivity": 500,      // Condutividade elétrica em µS/cm
      *   "dissolvedOxygen": 8.5    // Oxigénio dissolvido em mg/L
      * }
      */
@@ -59,6 +58,42 @@ export default (app: Router) => {
     router.get("/getDataByRange", async (req, res) => {
         try {
             await dataController.getDataByRange(req, res);
+        } catch (error) {
+            console.error('Erro ao processar a requisição:', error);
+            res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+    });
+
+    /**
+     * Endpoint para obter os limiares de sensores.
+     * Exemplo de URL: /data/getThresholds
+     * Retorna os limiares atuais para temperatura, pH, turbidez, TDS e oxigénio dissolvido.
+     */
+    router.get("/getThresholds", async (req, res) => {
+        try {
+            await dataController.getThresholds(req, res);
+        } catch (error) {
+            console.error('Erro ao processar a requisição:', error);
+            res.status(500).json({ error: 'Erro interno do servidor' });
+        }
+    });
+
+    /**
+     * Endpoint para atualizar os limiares de sensores.
+     * Exemplo de URL: /data/updateThresholds
+     * O corpo da requisição deve conter os novos limiares em formato JSON.
+     * Exemplo de corpo da requisição:
+     * {
+     *   "temperature": { "goodMin": 15, "goodMax": 30, "alarmingMin": 10, "alarmingMax": 35 },
+     *   "ph": { "goodMin": 6.5, "goodMax": 8.5, "alarmingMin": 6.0, "alarmingMax": 9.0 },
+     *   "turbidity": { "goodMin": 0, "goodMax": 5, "alarmingMin": 5, "alarmingMax": 10 },
+     *   "tds": { "goodMin": 100, "goodMax": 500, "alarmingMin": 500, "alarmingMax": 1000 },
+     *   "dissolvedOxygen": { "goodMin": 5, "goodMax": 10, "alarmingMin": 3, "alarmingMax": 12 }
+     * }
+     */
+    router.put("/updateThresholds", async (req, res) => {
+        try {
+            await dataController.updateThresholds(req, res);
         } catch (error) {
             console.error('Erro ao processar a requisição:', error);
             res.status(500).json({ error: 'Erro interno do servidor' });

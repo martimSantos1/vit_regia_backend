@@ -3,11 +3,13 @@ import { injectable, inject } from 'tsyringe';
 import { IDataController } from './IControllers/IDataController';
 import { IDataService } from '../services/IServices/IDataService';
 import { dataDTO } from '../dto/dataDTO';
+import { ThresholdService } from '../services/thresholdService';
 
 @injectable()
 export class DataController implements IDataController {
   constructor(
-    @inject('DataService') private dataService: IDataService
+    @inject('DataService') private dataService: IDataService,
+    @inject('ThresholdService') private thresholdService: ThresholdService
   ) { }
 
   /**
@@ -72,6 +74,37 @@ export class DataController implements IDataController {
 
     } catch (error: any) {
       return res.status(500).json({ error: error.message || 'Erro interno no servidor' });
+    }
+  }
+
+  /**
+   * Obtém os limiares de sensores.
+   * @param req - Requisição HTTP.
+   * @param res - Resposta HTTP.
+   * @returns Limiar de sensores.
+   */
+  async getThresholds(req: Request, res: Response): Promise<Response> {
+    try {
+      const thresholds = await this.thresholdService.getThresholds();
+      return res.status(200).json({ message: 'Limiar de sensores obtido com sucesso', thresholds });
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Erro ao obter os limiares de sensores' });
+    }
+  }
+
+  /**
+   * Atualiza os limiares de sensores.
+   * @param req - Requisição HTTP contendo os novos limiares.
+   * @param res - Resposta HTTP.
+   * @returns Mensagem de sucesso ou erro.
+   */
+  async updateThresholds(req: Request, res: Response): Promise<Response> {
+    try {
+      const updatedThresholds = req.body; // Espera-se que o corpo da requisição contenha os novos limiares
+      await this.thresholdService.updateThresholds(updatedThresholds);
+      return res.status(200).json({ message: 'Limiar de sensores atualizado com sucesso' });
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message || 'Erro ao atualizar os limiares de sensores' });
     }
   }
 }

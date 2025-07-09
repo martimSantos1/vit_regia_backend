@@ -4,6 +4,7 @@ import { IDataRepository } from "../../domain/repositories/IDataRepository";
 import { dataDTO, DataDTO } from "../dto/dataDTO";
 import { SensorData, Status } from "../../domain/entities/sensorData";
 import admin from "firebase-admin";
+import { ThresholdService } from "./thresholdService";
 
 type ParamKey =
   | "temperatureStatus"
@@ -23,30 +24,30 @@ export class DataService implements IDataService {
   };
 
   constructor(
-    @inject('DataRepository') private dataRepository: IDataRepository
+    @inject('DataRepository') private dataRepository: IDataRepository,
+    @inject('ThresholdService') private thresholdService: ThresholdService
   ) { }
 
   async registerSensorData(data: DataDTO): Promise<DataDTO> {
     try {
+      const thresholds = await this.thresholdService.getThresholds();
+
       const sensorData = new SensorData(
         data.temperature,
         data.ph,
         data.turbidity,
         data.tds,
-        data.dissolvedOxygen
+        data.dissolvedOxygen,
+        thresholds
       );
 
       await this.dataRepository.saveSensorData(sensorData);
-
-      // Verifica alterações críticas
       this.checkAndSendCriticalAlert(sensorData);
-
+      return data;
     } catch (error) {
-      console.error('Erro ao processar os dados:', error);
-      throw new Error('Dados inválidos');
+      console.error("Erro ao processar os dados:", error);
+      throw new Error("Dados inválidos");
     }
-
-    return Promise.resolve(data);
   }
 
   async getLastSensorData(numberOfData: number): Promise<DataDTO[]> {
@@ -54,8 +55,8 @@ export class DataService implements IDataService {
       if (!Number.isInteger(numberOfData) || numberOfData <= 0 || numberOfData > 100) {
         throw new Error('O parâmetro "numberOfData" deve ser um número inteiro entre 1 e 100.');
       }
-
-      const lastData = await this.dataRepository.getLastSensorData(numberOfData);
+      const thresholds = await this.thresholdService.getThresholds();
+      const lastData = await this.dataRepository.getLastSensorData(numberOfData, thresholds);
       const dataDTOs = dataDTO.array().parse(lastData);
       return dataDTOs;
     } catch (error) {
@@ -70,7 +71,8 @@ export class DataService implements IDataService {
       if (!validRanges.includes(range)) {
         throw new Error(`Intervalo inválido. Intervalos válidos: ${validRanges.join(', ')}`);
       }
-      const dataByRange = await this.dataRepository.getDataByRange(range);
+      const thresholds = await this.thresholdService.getThresholds();
+      const dataByRange = await this.dataRepository.getDataByRange(range, thresholds);
       const dataDTOs = dataDTO.array().parse(dataByRange);
       return dataDTOs;
     } catch (error) {

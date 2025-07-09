@@ -1,0 +1,32 @@
+{
+  "temperature": {
+    "goodMin": 12,
+    "goodMax": 30,
+    "alarmingMin": 10,
+    "alarmingMax": 35
+  },
+  "ph": {
+    "goodMin": 6.5,
+    "goodMax": 8.5,
+    "alarmingMin": 6,
+    "alarmingMax": 9
+  },
+  "turbidity": {
+    "goodMin": 0,
+    "goodMax": 5,
+    "alarmingMin": 5,
+    "alarmingMax": 10
+  },
+  "tds": {
+    "goodMin": 100,
+    "goodMax": 500,
+    "alarmingMin": 500,
+    "alarmingMax": 1000
+  },
+  "dissolvedOxygen": {
+    "goodMin": 5,
+    "goodMax": 10,
+    "alarmingMin": 3,
+    "alarmingMax": 12
+  }
+}

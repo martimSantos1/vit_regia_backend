@@ -4,6 +4,7 @@ import { SensorData } from '../../domain/entities/sensorData';
 
 import { Point, flux } from '@influxdata/influxdb-client';
 import { getWriteApi, getQueryApi } from '../../loaders/influx';
+import { Thresholds } from '../../domain/entities/thresholds';
 
 @injectable()
 export class DataRepository implements IDataRepository {
@@ -28,7 +29,7 @@ export class DataRepository implements IDataRepository {
     }
   }
 
-  async getLastSensorData(numberOfData: number): Promise<SensorData[]> {
+  async getLastSensorData(numberOfData: number, thresholds: Thresholds): Promise<SensorData[]> {
     const queryApi = getQueryApi();
 
     const fluxQuery = `
@@ -43,9 +44,7 @@ export class DataRepository implements IDataRepository {
     const results: SensorData[] = [];
 
     try {
-      const rows = await new Promise<any[]>((resolve, reject) => {
-        const buffer: any[] = [];
-
+      const rows = await new Promise<SensorData[]>((resolve, reject) => {
         queryApi.queryRows(fluxQuery, {
           next(row, tableMeta) {
             const o = tableMeta.toObject(row);
@@ -56,6 +55,7 @@ export class DataRepository implements IDataRepository {
               o.turbidity,
               o.tds,
               o.dissolved_oxygen,
+              thresholds,
               o._time
             );
 
@@ -77,7 +77,8 @@ export class DataRepository implements IDataRepository {
     }
   }
 
-  async getDataByRange(range: string): Promise<SensorData[]> {
+
+  async getDataByRange(range: string, thresholds: Thresholds): Promise<SensorData[]> {
     const queryApi = getQueryApi();
 
     const fluxQuery = `
@@ -103,6 +104,7 @@ export class DataRepository implements IDataRepository {
               o.turbidity,
               o.tds,
               o.dissolved_oxygen,
+              thresholds,
               o._time
             );
 
