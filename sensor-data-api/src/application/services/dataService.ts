@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { inject, injectable } from "tsyringe";
 import { IDataService } from "./IServices/IDataService";
 import { IDataRepository } from "../../domain/repositories/IDataRepository";
@@ -12,6 +13,8 @@ type ParamKey =
   | "turbidityStatus"
   | "tdsStatus"
   | "dissolvedOxygenStatus";
+
+const DATA_INTERVAL_SECONDS = 5; // frequência real de envio dos dados
 
 @injectable()
 export class DataService implements IDataService {
@@ -55,8 +58,13 @@ export class DataService implements IDataService {
       if (!Number.isInteger(numberOfData) || numberOfData <= 0 || numberOfData > 100) {
         throw new Error('O parâmetro "numberOfData" deve ser um número inteiro entre 1 e 100.');
       }
+
       const thresholds = await this.thresholdService.getThresholds();
-      const lastData = await this.dataRepository.getLastSensorData(numberOfData, thresholds);
+
+      const bufferSeconds = Math.ceil(numberOfData * DATA_INTERVAL_SECONDS * 1.3); // margem de segurança de 30%
+      const rangeString = `-${Math.ceil(bufferSeconds / 60)}m`;
+
+      const lastData = await this.dataRepository.getLastSensorData(numberOfData, thresholds, rangeString);
       const dataDTOs = dataDTO.array().parse(lastData);
       return dataDTOs;
     } catch (error) {

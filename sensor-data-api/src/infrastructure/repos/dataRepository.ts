@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { injectable } from 'tsyringe';
 import { IDataRepository } from '../../domain/repositories/IDataRepository';
 import { SensorData } from '../../domain/entities/sensorData';
@@ -29,12 +30,12 @@ export class DataRepository implements IDataRepository {
     }
   }
 
-  async getLastSensorData(numberOfData: number, thresholds: Thresholds): Promise<SensorData[]> {
+  async getLastSensorData(numberOfData: number, thresholds: Thresholds, range: string): Promise<SensorData[]> {
     const queryApi = getQueryApi();
 
     const fluxQuery = `
       from(bucket: "sensor-data")
-        |> range(start: -10m)
+        |> range(start: ${range})
         |> filter(fn: (r) => r._measurement == "sensor_data")
         |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
         |> sort(columns: ["_time"], desc: true)
@@ -76,7 +77,6 @@ export class DataRepository implements IDataRepository {
       throw new Error('Erro ao consultar os dados');
     }
   }
-
 
   async getDataByRange(range: string, thresholds: Thresholds): Promise<SensorData[]> {
     const queryApi = getQueryApi();

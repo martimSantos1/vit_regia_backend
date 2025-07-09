@@ -1,15 +1,16 @@
+import "reflect-metadata"
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import { IDataController } from './IControllers/IDataController';
 import { IDataService } from '../services/IServices/IDataService';
 import { dataDTO } from '../dto/dataDTO';
-import { ThresholdService } from '../services/thresholdService';
+import { IThresholdService } from '../services/IServices/IThresholdService';
 
 @injectable()
 export class DataController implements IDataController {
   constructor(
     @inject('DataService') private dataService: IDataService,
-    @inject('ThresholdService') private thresholdService: ThresholdService
+    @inject('ThresholdService') private thresholdService: IThresholdService
   ) { }
 
   /**
